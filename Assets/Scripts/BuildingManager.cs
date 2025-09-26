@@ -2,41 +2,38 @@ using UnityEngine;
 
 public class BuildingManager : MonoBehaviour
 {
-    [Header("Building Settings")]
-    public GameObject buildingPrefab;
+    [Header("Building Prefabs")]
+    public GameObject sandboxPrefab; // vertraagt enemies
+    public GameObject wallPrefab;    // blokkeert pad
+    public GameObject swingPrefab;   // knockback
+    public GameObject slidePrefab;   // schiet ballen
+
+    [Header("Placement Settings")]
     public Material placeholderMaterial;
     public LayerMask groundLayer;
     public float gridSize = 1f;
 
     [Header("Grid Settings")]
     public GameObject linePrefab;
-    public int gridWidth = 1;    // we tonen nu 1x1 rond het blokje
-    public int gridHeight = 1;
-    public Color gridColor = new Color(0f, 1f, 0f, 0.3f); // transparant
+    public Color gridColor = new Color(0f, 1f, 0f, 0.3f);
 
     private GameObject currentBuilding;
     private Material[] originalMaterials;
     private bool isPlacing = false;
 
     private GameObject gridParent;
+    private GameObject selectedPrefab;
+
+    private float currentRotation = 0f;
 
     void Update()
     {
+        HandleBuildingSelection();
+        HandleRotation();
+
         if (Input.GetKeyDown(KeyCode.E))
         {
-            isPlacing = !isPlacing;
-
-            if (isPlacing)
-            {
-                currentBuilding = Instantiate(buildingPrefab);
-                SetPlaceholderMaterial(currentBuilding);
-                ShowGrid(currentBuilding.transform.position);
-            }
-            else
-            {
-                if (currentBuilding != null) Destroy(currentBuilding);
-                HideGrid();
-            }
+            TogglePlacement();
         }
 
         if (isPlacing && currentBuilding != null)
@@ -52,6 +49,71 @@ public class BuildingManager : MonoBehaviour
         }
     }
 
+    #region Building Selection
+
+    void HandleBuildingSelection()
+    {
+        if (Input.GetKeyDown(KeyCode.Alpha1)) // &
+            SelectPrefab(sandboxPrefab);
+        if (Input.GetKeyDown(KeyCode.Alpha2)) // é
+            SelectPrefab(wallPrefab);
+        if (Input.GetKeyDown(KeyCode.Alpha3)) // "
+            SelectPrefab(swingPrefab);
+        if (Input.GetKeyDown(KeyCode.Alpha4)) // '
+            SelectPrefab(slidePrefab);
+    }
+
+    void SelectPrefab(GameObject prefab)
+    {
+        if (isPlacing && currentBuilding != null)
+            Destroy(currentBuilding);
+
+        selectedPrefab = prefab;
+
+        if (isPlacing)
+        {
+            currentBuilding = Instantiate(selectedPrefab);
+            SetPlaceholderMaterial(currentBuilding);
+            ShowGrid(currentBuilding.transform.position);
+        }
+    }
+
+    void TogglePlacement()
+    {
+        isPlacing = !isPlacing;
+
+        if (isPlacing && selectedPrefab != null)
+        {
+            currentBuilding = Instantiate(selectedPrefab);
+            SetPlaceholderMaterial(currentBuilding);
+            ShowGrid(currentBuilding.transform.position);
+        }
+        else
+        {
+            if (currentBuilding != null) Destroy(currentBuilding);
+            HideGrid();
+        }
+    }
+
+    #endregion
+
+    #region Rotation
+
+    void HandleRotation()
+    {
+        if (!isPlacing || currentBuilding == null) return;
+
+        float scroll = Input.GetAxis("Mouse ScrollWheel");
+        if (scroll > 0f)
+            currentRotation += 90f;
+        else if (scroll < 0f)
+            currentRotation -= 90f;
+
+        currentBuilding.transform.rotation = Quaternion.Euler(0, currentRotation, 0);
+    }
+
+    #endregion
+
     #region Grid
 
     void ShowGrid(Vector3 center)
@@ -61,7 +123,6 @@ public class BuildingManager : MonoBehaviour
 
         float halfSize = gridSize / 2f;
 
-        // Teken 4 lijnen rond het blokje (vierkant)
         Vector3 bl = SnapToGrid(center) + new Vector3(-halfSize, 0.01f, -halfSize);
         Vector3 br = SnapToGrid(center) + new Vector3(halfSize, 0.01f, -halfSize);
         Vector3 tr = SnapToGrid(center) + new Vector3(halfSize, 0.01f, halfSize);
@@ -88,7 +149,6 @@ public class BuildingManager : MonoBehaviour
     {
         if (gridParent == null) return;
 
-        // Grid volgt het blokje
         float halfSize = gridSize / 2f;
 
         Vector3 bl = SnapToGrid(center) + new Vector3(-halfSize, 0.01f, -halfSize);
@@ -122,7 +182,6 @@ public class BuildingManager : MonoBehaviour
         if (Physics.Raycast(ray, out RaycastHit hit, 100f, groundLayer))
         {
             Vector3 snappedPosition = SnapToGrid(hit.point);
-
             float objectHeight = GetObjectHeight(currentBuilding);
             snappedPosition.y += objectHeight / 2f;
 
@@ -193,3 +252,4 @@ public class BuildingManager : MonoBehaviour
 
     #endregion
 }
+    
