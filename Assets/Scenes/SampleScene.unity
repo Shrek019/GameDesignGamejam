@@ -1395,7 +1395,8 @@ GameObject:
   - component: {fileID: 1999905755}
   - component: {fileID: 1999905754}
   - component: {fileID: 1999905753}
-  m_Layer: 0
+  - component: {fileID: 1999905757}
+  m_Layer: 6
   m_Name: Playground
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1492,6 +1493,28 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1999905757
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1999905752}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b437f9a8ce4b9eb4581f6c7491f08165, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  buildingPrefab: {fileID: 7299027327928471493, guid: 9ce7c16c8ba35eb49876b269948c62f8, type: 3}
+  placeholderMaterial: {fileID: 2100000, guid: a68358d06e1ab854987eb98852a3a82c, type: 2}
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  gridSize: 1
+  linePrefab: {fileID: 1505864643760318424, guid: 5d2a3cc52e83e4a44b0030e189a9caff, type: 3}
+  gridWidth: 1
+  gridHeight: 1
+  gridColor: {r: 0, g: 1, b: 0.8947046, a: 0.3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
