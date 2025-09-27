@@ -17,13 +17,16 @@ public class BuildingManager : MonoBehaviour
     public GameObject linePrefab;
     public Color gridColor = new Color(0f, 1f, 0f, 0.3f);
 
+    [Header("Range Preview")]
+    public GameObject rangePreviewPrefab;
+
     private GameObject currentBuilding;
+    private GameObject currentRangePreview;
     private Material[] originalMaterials;
     private bool isPlacing = false;
 
     private GameObject gridParent;
     private GameObject selectedPrefab;
-
     private float currentRotation = 0f;
 
     void Update()
@@ -32,35 +35,30 @@ public class BuildingManager : MonoBehaviour
         HandleRotation();
 
         if (Input.GetKeyDown(KeyCode.E))
-        {
             TogglePlacement();
-        }
 
         if (isPlacing && currentBuilding != null)
         {
             MoveBuildingWithMouse();
             UpdateGrid(currentBuilding.transform.position);
+            UpdateRangePreview();
 
             if (Input.GetMouseButtonDown(0))
             {
                 PlaceBuilding();
                 HideGrid();
+                DestroyRangePreview();
             }
         }
     }
 
     #region Building Selection
-
     void HandleBuildingSelection()
     {
-        if (Input.GetKeyDown(KeyCode.Alpha1)) // &
-            SelectPrefab(sandboxPrefab);
-        if (Input.GetKeyDown(KeyCode.Alpha2)) // é
-            SelectPrefab(wallPrefab);
-        if (Input.GetKeyDown(KeyCode.Alpha3)) // "
-            SelectPrefab(swingPrefab);
-        if (Input.GetKeyDown(KeyCode.Alpha4)) // '
-            SelectPrefab(slidePrefab);
+        if (Input.GetKeyDown(KeyCode.Alpha1)) SelectPrefab(sandboxPrefab);
+        if (Input.GetKeyDown(KeyCode.Alpha2)) SelectPrefab(wallPrefab);
+        if (Input.GetKeyDown(KeyCode.Alpha3)) SelectPrefab(swingPrefab);
+        if (Input.GetKeyDown(KeyCode.Alpha4)) SelectPrefab(slidePrefab);
     }
 
     void SelectPrefab(GameObject prefab)
@@ -75,6 +73,7 @@ public class BuildingManager : MonoBehaviour
             currentBuilding = Instantiate(selectedPrefab);
             SetPlaceholderMaterial(currentBuilding);
             ShowGrid(currentBuilding.transform.position);
+            ShowRangePreview();
         }
     }
 
@@ -87,42 +86,40 @@ public class BuildingManager : MonoBehaviour
             currentBuilding = Instantiate(selectedPrefab);
             SetPlaceholderMaterial(currentBuilding);
             ShowGrid(currentBuilding.transform.position);
+            ShowRangePreview();
         }
         else
         {
             if (currentBuilding != null) Destroy(currentBuilding);
             HideGrid();
+            DestroyRangePreview();
         }
     }
-
     #endregion
 
     #region Rotation
-
     void HandleRotation()
     {
         if (!isPlacing || currentBuilding == null) return;
 
         float scroll = Input.GetAxis("Mouse ScrollWheel");
-        if (scroll > 0f)
-            currentRotation += 90f;
-        else if (scroll < 0f)
-            currentRotation -= 90f;
+        if (scroll > 0f) currentRotation += 90f;
+        else if (scroll < 0f) currentRotation -= 90f;
 
         currentBuilding.transform.rotation = Quaternion.Euler(0, currentRotation, 0);
-    }
 
+        if (currentRangePreview != null)
+            currentRangePreview.transform.rotation = currentBuilding.transform.rotation;
+    }
     #endregion
 
     #region Grid
-
     void ShowGrid(Vector3 center)
     {
         if (gridParent != null) Destroy(gridParent);
         gridParent = new GameObject("GridLines");
 
         float halfSize = gridSize / 2f;
-
         Vector3 bl = SnapToGrid(center) + new Vector3(-halfSize, 0.01f, -halfSize);
         Vector3 br = SnapToGrid(center) + new Vector3(halfSize, 0.01f, -halfSize);
         Vector3 tr = SnapToGrid(center) + new Vector3(halfSize, 0.01f, halfSize);
@@ -150,7 +147,6 @@ public class BuildingManager : MonoBehaviour
         if (gridParent == null) return;
 
         float halfSize = gridSize / 2f;
-
         Vector3 bl = SnapToGrid(center) + new Vector3(-halfSize, 0.01f, -halfSize);
         Vector3 br = SnapToGrid(center) + new Vector3(halfSize, 0.01f, -halfSize);
         Vector3 tr = SnapToGrid(center) + new Vector3(halfSize, 0.01f, halfSize);
@@ -171,11 +167,9 @@ public class BuildingManager : MonoBehaviour
             gridParent = null;
         }
     }
-
     #endregion
 
-    #region Building Placement
-
+    #region Placement
     void MoveBuildingWithMouse()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -186,6 +180,9 @@ public class BuildingManager : MonoBehaviour
             snappedPosition.y += objectHeight / 2f;
 
             currentBuilding.transform.position = snappedPosition;
+
+            if (currentRangePreview != null)
+                currentRangePreview.transform.position = currentBuilding.transform.position;
         }
     }
 
@@ -193,8 +190,7 @@ public class BuildingManager : MonoBehaviour
     {
         Renderer[] renderers = obj.GetComponentsInChildren<Renderer>();
         Bounds bounds = renderers[0].bounds;
-        foreach (Renderer rend in renderers)
-            bounds.Encapsulate(rend.bounds);
+        foreach (Renderer rend in renderers) bounds.Encapsulate(rend.bounds);
         return bounds.size.y;
     }
 
@@ -210,12 +206,11 @@ public class BuildingManager : MonoBehaviour
     {
         RestoreOriginalMaterials(currentBuilding);
         currentBuilding = null;
+        DestroyRangePreview();
     }
-
     #endregion
 
     #region Materials
-
     void SetPlaceholderMaterial(GameObject obj)
     {
         Renderer[] renderers = obj.GetComponentsInChildren<Renderer>();
@@ -224,7 +219,6 @@ public class BuildingManager : MonoBehaviour
         for (int i = 0; i < renderers.Length; i++)
         {
             originalMaterials[i] = renderers[i].material;
-
             Material mat = new Material(placeholderMaterial);
             Color c = mat.color;
             c.a = 0.5f;
@@ -249,7 +243,60 @@ public class BuildingManager : MonoBehaviour
         for (int i = 0; i < renderers.Length; i++)
             renderers[i].material = originalMaterials[i];
     }
+    #endregion
 
+    #region Range Preview
+    void ShowRangePreview()
+    {
+        DestroyRangePreview();
+
+        if (selectedPrefab == swingPrefab)
+        {
+            currentRangePreview = Instantiate(rangePreviewPrefab, currentBuilding.transform.position, Quaternion.identity, currentBuilding.transform);
+            float range = currentBuilding.GetComponent<Swing>().knockbackForceRange;
+            currentRangePreview.transform.localScale = new Vector3(range * 2, 0.1f, range * 2);
+        }
+        else if (selectedPrefab == slidePrefab)
+        {
+            currentRangePreview = Instantiate(rangePreviewPrefab, currentBuilding.transform.position, Quaternion.identity, currentBuilding.transform);
+            Slide slideComp = currentBuilding.GetComponent<Slide>();
+
+            float length = slideComp.detectionRange;
+            float width = 1f;
+            float height = 0.1f;
+
+            // Schaal de plane
+            currentRangePreview.transform.localScale = new Vector3(width, height, length);
+
+            // Offset vanaf achterzijde (midden Slide + helft lengte)
+            Vector3 offset = currentBuilding.transform.forward * (length / 2f);
+            currentRangePreview.transform.position = currentBuilding.transform.position + offset;
+
+            // Rotatie: plat op X-as en meedraaiend met Slide
+            currentRangePreview.transform.rotation = currentBuilding.transform.rotation * Quaternion.Euler(90f, 0f, 0f);
+        }
+    }
+
+
+
+
+
+    void UpdateRangePreview()
+    {
+        if (currentRangePreview != null && currentBuilding != null)
+        {
+            currentRangePreview.transform.position = currentBuilding.transform.position;
+            currentRangePreview.transform.rotation = currentBuilding.transform.rotation;
+        }
+    }
+
+    void DestroyRangePreview()
+    {
+        if (currentRangePreview != null)
+        {
+            Destroy(currentRangePreview);
+            currentRangePreview = null;
+        }
+    }
     #endregion
 }
-    

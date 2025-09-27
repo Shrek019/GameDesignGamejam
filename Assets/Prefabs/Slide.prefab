@@ -13,9 +13,10 @@ GameObject:
   - component: {fileID: 4096563396676685409}
   - component: {fileID: 93558289497291629}
   - component: {fileID: 3764065886544928283}
+  - component: {fileID: 8758272541439865243}
   m_Layer: 0
   m_Name: Slide
-  m_TagString: Untagged
+  m_TagString: Building
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -124,6 +125,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   projectilePrefab: {fileID: 6139527502497344199, guid: 512bca1a87b83764d9e47de99ddc0e87, type: 3}
-  projectileSpawn: {fileID: 8607386770694730566, guid: 512bca1a87b83764d9e47de99ddc0e87, type: 3}
+  projectileSpawn: {fileID: 7595650033765109870}
   shootInterval: 2
   projectileSpeed: 15
+  damage: 10
+  detectionRange: 4
+  forwardThreshold: 1
+--- !u!114 &8758272541439865243
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1295311850545531738}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9138666a6177b7c48b97db3c6f151c0c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  health: 20

@@ -13,9 +13,10 @@ GameObject:
   - component: {fileID: 8201209692535901965}
   - component: {fileID: 3114512635523208012}
   - component: {fileID: 7858959475606386441}
+  - component: {fileID: -7425540456679246817}
   m_Layer: 0
   m_Name: Wall
-  m_TagString: Untagged
+  m_TagString: Building
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -121,3 +122,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 934311094cf5a2e4880f9e2123b6d956, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &-7425540456679246817
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5360622547816487004}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9138666a6177b7c48b97db3c6f151c0c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  health: 20

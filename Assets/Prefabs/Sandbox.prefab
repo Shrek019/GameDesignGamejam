@@ -123,3 +123,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   slowMultiplier: 0.5
   slowDuration: 2
+  maxHealth: 25
+  damagePerEnemy: 4
+  damageInterval: 1

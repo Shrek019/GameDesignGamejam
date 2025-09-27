@@ -1,18 +1,21 @@
-using UnityEngine;
-using UnityEngine.AI;
+﻿using UnityEngine;
 using System.Collections;
 
-[RequireComponent(typeof(NavMeshAgent))]
 public class Zombie : MonoBehaviour
 {
-    private Transform target;
+    private Transform core;
     private WaveSpawner waveSpawner;
-    private NavMeshAgent agent;
 
-    [Header("Zombie Settings")]
+    [Header("Stats")]
+    public int maxHealth = 20;
+    private int currentHealth;
+
+    [Header("Movement & Combat")]
     public float speed = 2f;
-    public int damage = 5;
     public float attackInterval = 1.5f;
+    public int damage = 5;
+    public float attackRange = 1f;
+    public float buildingDetectRange = 5f;
 
     private bool attacking = false;
     private Coroutine attackRoutine;
@@ -20,39 +23,77 @@ public class Zombie : MonoBehaviour
     private float baseSpeed;
     private Coroutine slowRoutine;
 
-    // Deze methode wordt vanuit WaveSpawner aangeroepen
-    public void Init(Transform core, WaveSpawner spawner)
+    private GameObject currentBuildingTarget;
+
+    #region Initialization
+    public void Init(Transform coreTransform, WaveSpawner spawner)
     {
-        target = core;
+        core = coreTransform;
         waveSpawner = spawner;
-
-        if (agent == null)
-            agent = GetComponent<NavMeshAgent>();
-
         baseSpeed = speed;
-        agent.speed = baseSpeed;
-        agent.stoppingDistance = 0.5f; // wanneer dichtbij core stoppen
-        agent.SetDestination(target.position);
+        currentHealth = maxHealth;
     }
+    #endregion
 
+    #region Update
     void Update()
     {
-        if (agent == null || target == null) return;
+        if (attacking) return;
 
-        if (!attacking && agent.remainingDistance <= agent.stoppingDistance + 0.1f)
+        // 1️⃣ Zoek alle buildings in de detect radius
+        Collider[] hits = Physics.OverlapSphere(transform.position, buildingDetectRange);
+        GameObject closestBuilding = null;
+        float closestBuildingDist = Mathf.Infinity;
+
+        foreach (var hit in hits)
         {
-            StartAttacking();
+            if (hit.CompareTag("Building"))
+            {
+                float dist = Vector3.Distance(transform.position, hit.transform.position);
+                if (dist < closestBuildingDist)
+                {
+                    closestBuildingDist = dist;
+                    closestBuilding = hit.gameObject;
+                }
+            }
+        }
+
+        // 2️⃣ Bereken afstand tot core
+        float distToCore = Vector3.Distance(transform.position, core.position);
+
+        // 3️⃣ Kies target: building als het dichterbij is dan core
+        if (closestBuilding != null && closestBuildingDist < distToCore)
+            currentBuildingTarget = closestBuilding;
+        else
+            currentBuildingTarget = null; // core target
+
+        // 4️⃣ Kies huidige target positie
+        Vector3 targetPos = (currentBuildingTarget != null) ? currentBuildingTarget.transform.position : core.position;
+        float distance = Vector3.Distance(transform.position, targetPos);
+
+        // 5️⃣ Beweeg naar target als buiten attackRange
+        if (distance > attackRange)
+        {
+            transform.position = Vector3.MoveTowards(transform.position, targetPos, speed * Time.deltaTime);
+
+            Vector3 dir = (targetPos - transform.position).normalized;
+            if (dir != Vector3.zero) transform.forward = dir;
+        }
+        else
+        {
+            if (currentBuildingTarget != null)
+                StartAttackingBuilding(currentBuildingTarget);
+            else
+                StartAttackingCore();
         }
     }
+    #endregion
 
-    private void StartAttacking()
+    #region Combat Core
+    private void StartAttackingCore()
     {
         attacking = true;
-        agent.isStopped = true;
-
-        if (attackRoutine != null)
-            StopCoroutine(attackRoutine);
-
+        if (attackRoutine != null) StopCoroutine(attackRoutine);
         attackRoutine = StartCoroutine(AttackCore());
     }
 
@@ -62,31 +103,66 @@ public class Zombie : MonoBehaviour
         {
             if (waveSpawner != null)
                 waveSpawner.DamageCore(damage);
-
             yield return new WaitForSeconds(attackInterval);
         }
     }
+    #endregion
 
+    #region Combat Buildings
+    private void StartAttackingBuilding(GameObject building)
+    {
+        attacking = true;
+        if (attackRoutine != null) StopCoroutine(attackRoutine);
+        attackRoutine = StartCoroutine(AttackBuilding(building));
+    }
+
+    private IEnumerator AttackBuilding(GameObject building)
+    {
+        while (building != null)
+        {
+            Destructible destructible = building.GetComponent<Destructible>();
+            if (destructible != null)
+                destructible.TakeDamage(damage);
+            else
+                Destroy(building);
+
+            yield return new WaitForSeconds(attackInterval);
+        }
+
+        attacking = false;
+        currentBuildingTarget = null;
+    }
+    #endregion
+
+    #region Slow Effect
     public void ApplySlow(float multiplier, float duration)
     {
         if (slowRoutine != null)
         {
             StopCoroutine(slowRoutine);
-            agent.speed = baseSpeed; // reset vorige slow
+            speed = baseSpeed;
         }
-
         slowRoutine = StartCoroutine(SlowEffect(multiplier, duration));
     }
 
     private IEnumerator SlowEffect(float multiplier, float duration)
     {
-        agent.speed = baseSpeed * multiplier;
+        speed = baseSpeed * multiplier;
         yield return new WaitForSeconds(duration);
-        agent.speed = baseSpeed;
+        speed = baseSpeed;
         slowRoutine = null;
     }
+    #endregion
 
-    private void OnDestroy()
+    #region Health
+    public void TakeDamage(int amount)
+    {
+        currentHealth -= amount;
+        if (currentHealth <= 0)
+            Die();
+    }
+
+    private void Die()
     {
         if (waveSpawner != null)
             waveSpawner.ZombieDied();
@@ -96,5 +172,14 @@ public class Zombie : MonoBehaviour
 
         if (slowRoutine != null)
             StopCoroutine(slowRoutine);
+
+        Destroy(gameObject);
+    }
+    #endregion
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, buildingDetectRange);
     }
 }
