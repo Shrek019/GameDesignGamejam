@@ -426,3 +426,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 96725ce7e9248274387b7623aa70b7dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  target: {fileID: 0}
+  heightOffset: 2
+  slider: {fileID: 1793046877427478937}
+  buildingObject: {fileID: 6124480902342865455, guid: 00b76045a8260f54ba6ae8f2cee16fe5, type: 3}

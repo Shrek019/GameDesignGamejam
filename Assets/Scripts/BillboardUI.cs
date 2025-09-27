@@ -1,22 +1,42 @@
+// Nieuw script: BillboardFollow.cs
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Billboard : MonoBehaviour
 {
+    public Transform target;
+    public float heightOffset = 2f;
     private Camera mainCamera;
-    public float fixedScale = 1f;
-    private Vector3 initialLocalScale;
+    public Slider slider;
+    public GameObject buildingObject; // verwijzing naar het gebouw
+    private BuildingManager buildingManager; // component
+
     void Start()
     {
         mainCamera = Camera.main;
-        initialLocalScale = transform.localScale;
+
+
+        if (buildingObject != null)
+        {
+            buildingManager = buildingObject.GetComponent<BuildingManager>();
+        }
     }
 
     void LateUpdate()
     {
-        if (mainCamera != null)
+        if (target == null || mainCamera == null) return;
+
+        // Position boven het gebouw
+        transform.position = target.position + Vector3.up * heightOffset;
+
+        // Kijk naar camera
+        transform.forward = mainCamera.transform.forward;
+
+        // update slider
+        if (slider != null && buildingManager != null)
         {
-            transform.forward = mainCamera.transform.forward;
-            transform.localScale = initialLocalScale * fixedScale;
+            slider.value = buildingManager.health;
         }
+
     }
 }

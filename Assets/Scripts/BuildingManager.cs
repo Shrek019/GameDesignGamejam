@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.UI;
 
@@ -173,24 +173,21 @@ public class BuildingManager : MonoBehaviour
         currentBuilding = null;
         DestroyRangePreview();
 
+        // In PlaceBuilding()
         if (healthBarPrefab != null)
         {
+            // Instantiate los van parent
             buildingHealthBar = Instantiate(
                 healthBarPrefab,
                 buildingInstance.transform.position + Vector3.up * 2f,
-                Quaternion.identity,
-                buildingInstance.transform
+                Quaternion.identity
             );
 
             buildingHealthSlider = buildingHealthBar.GetComponentInChildren<Slider>();
             buildingHealthSlider.maxValue = health;
             buildingHealthSlider.value = health;
-        }
 
-        // Reset geselecteerde kaart
-        if (cardManager != null)
-        {
-            cardManager.ClearSelectedCard();
+
         }
     }
 
