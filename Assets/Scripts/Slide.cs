@@ -10,7 +10,8 @@ public class Slide : MonoBehaviour
     public int damage = 10;
 
     [Header("Detection Settings")]
-    public float detectionRange = 3f;
+    public float detectionRange = 5f;
+    public float rotationSpeed = 5f;
     [Range(0f, 1f)] public float forwardThreshold = 0.7f;
 
     private float timer;
@@ -19,11 +20,47 @@ public class Slide : MonoBehaviour
     {
         timer += Time.deltaTime;
 
-        if (timer >= shootInterval && EnemyBehind())
+        Zombie target = GetClosestEnemy();
+        if (target != null)
         {
-            Shoot();
-            timer = 0f;
+            // Draai naar de vijand
+            Vector3 direction = (target.transform.position - transform.position).normalized;
+            direction.y = 0; // enkel horizontaal draaien
+            if (direction != Vector3.zero)
+            {
+                Quaternion lookRotation = Quaternion.LookRotation(-direction);
+                transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, rotationSpeed * Time.deltaTime);
+            }
+
+            // Schiet interval check
+            if (timer >= shootInterval)
+            {
+                Shoot(direction);
+                timer = 0f;
+            }
         }
+    }
+
+    Zombie GetClosestEnemy()
+    {
+        Collider[] hits = Physics.OverlapSphere(transform.position, detectionRange);
+        float closestDist = Mathf.Infinity;
+        Zombie closest = null;
+
+        foreach (var hit in hits)
+        {
+            Zombie enemy = hit.GetComponent<Zombie>();
+            if (enemy != null)
+            {
+                float dist = Vector3.Distance(transform.position, enemy.transform.position);
+                if (dist < closestDist)
+                {
+                    closestDist = dist;
+                    closest = enemy;
+                }
+            }
+        }
+        return closest;
     }
 
     bool EnemyBehind()
@@ -48,20 +85,25 @@ public class Slide : MonoBehaviour
         return false;
     }
 
-    void Shoot()
+    void Shoot(Vector3 direction)
     {
-        Vector3 spawnPos = new Vector3(projectileSpawn.position.x, projectileSpawn.position.y / 2, projectileSpawn.position.z);
-        GameObject proj = Instantiate(projectilePrefab, spawnPos, projectileSpawn.rotation);
+        if (projectilePrefab == null || projectileSpawn == null) return;
 
+        GameObject proj = Instantiate(projectilePrefab, projectileSpawn.position, Quaternion.LookRotation(direction));
         Projectile p = proj.GetComponent<Projectile>();
         if (p != null) p.damage = damage;
 
         Rigidbody rb = proj.GetComponent<Rigidbody>();
-        if (rb != null)
-            rb.linearVelocity = -transform.forward * projectileSpeed; // schiet naar achteren
+        if (rb != null) rb.linearVelocity = direction * projectileSpeed;
 
         Destroy(proj, 5f);
     }
+
+    //private void OnDrawGizmosSelected()
+    //{
+    //    Gizmos.color = Color.cyan;
+    //    Gizmos.DrawWireSphere(transform.position, detectionRange);
+    //}
 
     private void OnDrawGizmosSelected()
     {

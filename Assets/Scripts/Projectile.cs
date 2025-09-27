@@ -7,6 +7,7 @@ public class Projectile : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         Zombie zombie = other.GetComponent<Zombie>();
+        Debug.Log(zombie);
         if (zombie != null)
         {
             zombie.TakeDamage(damage);

@@ -10,15 +10,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 263293ae387f6de459e9f61f39aa8e48, type: 3}
       propertyPath: m_LocalScale.x
-      value: 30
+      value: 22
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 263293ae387f6de459e9f61f39aa8e48, type: 3}
       propertyPath: m_LocalScale.y
-      value: 30
+      value: 22
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 263293ae387f6de459e9f61f39aa8e48, type: 3}
       propertyPath: m_LocalScale.z
-      value: 30
+      value: 22
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 263293ae387f6de459e9f61f39aa8e48, type: 3}
       propertyPath: m_LocalPosition.x
@@ -106,6 +106,7 @@ MonoBehaviour:
   projectileSpeed: 15
   damage: 10
   detectionRange: 4
+  rotationSpeed: 5
   forwardThreshold: 0.7
 --- !u!114 &-1371351187088479684
 MonoBehaviour:

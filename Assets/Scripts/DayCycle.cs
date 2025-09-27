@@ -220,6 +220,19 @@ public class DayManagerTMP_Fade : MonoBehaviour
         Destroy(chosenCardBack);
         yield return StartCoroutine(FlipAnimationPrefab(chosenCardPrefab));
 
+        if (cardText == "1 Extra Day")
+        {
+            maxDays += 1;
+        }
+        else
+        {
+            WaveSpawner ws = FindObjectOfType<WaveSpawner>();
+            if (ws != null)
+            {
+                ws.ApplyBuff(cardText); // cardText bevat de naam van de gekozen buff
+            }
+        }
+
         // Spawn andere kaart
         GameObject otherCardPrefab = null;
         if (otherCardBack != null)

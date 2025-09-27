@@ -44,14 +44,13 @@ public class BuildingManager : MonoBehaviour
         if (isPlacing && currentBuilding != null)
         {
             MoveBuildingWithMouse();
-            UpdateGrid(currentBuilding.transform.position);
             UpdateRangePreview();
 
             // Alleen plaatsen als de muis niet over UI is
             if (Input.GetMouseButtonDown(0) && !UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
             {
                 PlaceBuilding();
-                HideGrid();
+                DestroyRangePreview();
             }
         }
     }
@@ -75,7 +74,6 @@ public class BuildingManager : MonoBehaviour
         {
             currentBuilding = Instantiate(selectedPrefab);
             SetPlaceholderMaterial(currentBuilding);
-            ShowGrid(currentBuilding.transform.position);
             ShowRangePreview();
         }
     }
@@ -88,13 +86,11 @@ public class BuildingManager : MonoBehaviour
         {
             currentBuilding = Instantiate(selectedPrefab);
             SetPlaceholderMaterial(currentBuilding);
-            ShowGrid(currentBuilding.transform.position);
             ShowRangePreview();
         }
         else
         {
             if (currentBuilding != null) Destroy(currentBuilding);
-            HideGrid();
             DestroyRangePreview();
         }
     }
@@ -115,71 +111,16 @@ public class BuildingManager : MonoBehaviour
     }
     #endregion
 
-    #region Grid
-    void ShowGrid(Vector3 center)
-    {
-        if (gridParent != null) Destroy(gridParent);
-        gridParent = new GameObject("GridLines");
-
-        float halfSize = gridSize / 2f;
-        Vector3 bl = SnapToGrid(center) + new Vector3(-halfSize, 0.01f, -halfSize);
-        Vector3 br = SnapToGrid(center) + new Vector3(halfSize, 0.01f, -halfSize);
-        Vector3 tr = SnapToGrid(center) + new Vector3(halfSize, 0.01f, halfSize);
-        Vector3 tl = SnapToGrid(center) + new Vector3(-halfSize, 0.01f, halfSize);
-
-        CreateLine(bl, br); CreateLine(br, tr);
-        CreateLine(tr, tl); CreateLine(tl, bl);
-    }
-
-    void CreateLine(Vector3 start, Vector3 end)
-    {
-        GameObject line = Instantiate(linePrefab, gridParent.transform);
-        LineRenderer lr = line.GetComponent<LineRenderer>();
-        lr.positionCount = 2;
-        lr.SetPosition(0, start); lr.SetPosition(1, end);
-        lr.startColor = gridColor; lr.endColor = gridColor;
-    }
-
-    void UpdateGrid(Vector3 center)
-    {
-        if (gridParent == null) return;
-
-        float halfSize = gridSize / 2f;
-        Vector3 bl = SnapToGrid(center) + new Vector3(-halfSize, 0.01f, -halfSize);
-        Vector3 br = SnapToGrid(center) + new Vector3(halfSize, 0.01f, -halfSize);
-        Vector3 tr = SnapToGrid(center) + new Vector3(halfSize, 0.01f, halfSize);
-        Vector3 tl = SnapToGrid(center) + new Vector3(-halfSize, 0.01f, halfSize);
-
-        LineRenderer[] lines = gridParent.GetComponentsInChildren<LineRenderer>();
-        if (lines.Length >= 4)
-        {
-            lines[0].SetPosition(0, bl); lines[0].SetPosition(1, br);
-            lines[1].SetPosition(0, br); lines[1].SetPosition(1, tr);
-            lines[2].SetPosition(0, tr); lines[2].SetPosition(1, tl);
-            lines[3].SetPosition(0, tl); lines[3].SetPosition(1, bl);
-        }
-    }
-
-    void HideGrid()
-    {
-        if (gridParent != null)
-        {
-            Destroy(gridParent);
-            gridParent = null;
-        }
-    }
-    #endregion
-
     #region Placement
     void MoveBuildingWithMouse()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray, out RaycastHit hit, 100f, groundLayer))
         {
-            Vector3 snappedPosition = SnapToGrid(hit.point);
+            Vector3 position = hit.point; // GEEN SnapToGrid
             float objectHeight = GetObjectHeight(currentBuilding);
-            snappedPosition.y += objectHeight / 2f;
-            currentBuilding.transform.position = snappedPosition;
+            position.y += objectHeight / 2f;
+            currentBuilding.transform.position = position;
 
             if (currentRangePreview != null) UpdateRangePreviewPosition();
         }
@@ -314,7 +255,7 @@ public class BuildingManager : MonoBehaviour
         {
             Slide slideComp = currentBuilding.GetComponent<Slide>();
             Vector3 offset = currentBuilding.transform.forward * (slideComp.detectionRange / 2f);
-            currentRangePreview.transform.position = currentBuilding.transform.position + offset;
+            currentRangePreview.transform.position = currentBuilding.transform.position;// + offset;
             currentRangePreview.transform.rotation = Quaternion.Euler(0f, currentBuilding.transform.eulerAngles.y, 0f);
         }
     }

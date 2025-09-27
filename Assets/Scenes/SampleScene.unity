@@ -387,11 +387,11 @@ MonoBehaviour:
   cardContainer: {fileID: 257958750}
   panelDelay: 0.5
   buffs:
-  - 50% more coins
-  - Enemies are 15% slower
+  - +30 Playground HP
+  - +10 Extra Money per zombie
   debuffs:
   - Enemies deal 5% more damage
-  - Prepare for 1 extra day
+  - 1 Extra Day
 --- !u!114 &328269089
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -628,9 +628,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 6
-  edgeSize: 20
-  minBounds: {x: -2.09, y: -2}
-  maxBounds: {x: 0.15, y: 1.83}
+  edgeSize: 10
+  minBounds: {x: -6, y: -6}
+  maxBounds: {x: 6, y: 6}
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -1194,6 +1194,7 @@ MonoBehaviour:
   maxWaves: 4
   coreHealthSlider: {fileID: 1667471971}
   coreMaxHealth: 100
+  coreCurrentHealth: 0
   moneyManager: {fileID: 1903676884}
   moneyPerZombie: 10
   dayManager: {fileID: 328269088}
@@ -2160,10 +2161,10 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 47.7
+  m_fontSize: 53.55
   m_fontSizeBase: 47.7
   m_fontWeight: 400
-  m_enableAutoSizing: 0
+  m_enableAutoSizing: 1
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
@@ -2705,10 +2706,10 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 47.7
+  m_fontSize: 51.45
   m_fontSizeBase: 47.7
   m_fontWeight: 400
-  m_enableAutoSizing: 0
+  m_enableAutoSizing: 1
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0

@@ -22,7 +22,7 @@ public class WaveSpawner : MonoBehaviour
     [Header("Core Health")]
     public Slider coreHealthSlider;
     public int coreMaxHealth = 100;
-    private int coreCurrentHealth;
+    public int coreCurrentHealth;
 
     public MoneyManager moneyManager; // sleep hier de MoneyManager in de inspector
     public int moneyPerZombie = 10;
@@ -31,6 +31,7 @@ public class WaveSpawner : MonoBehaviour
 
     private bool waveReady = false; // arrows zijn actief, wave kan gestart worden
     public CanvasGroup waveUI;
+
 
     void Start()
     {
@@ -63,6 +64,24 @@ public class WaveSpawner : MonoBehaviour
         }
     }
 
+    public void ApplyBuff(string buffName)
+    {
+        if (buffName == "+30 Playground HP")
+        {
+            coreMaxHealth += 30;
+            coreCurrentHealth += 30;
+            if (coreHealthSlider != null)
+                coreHealthSlider.value = coreCurrentHealth;
+        }
+
+        // hier kan je andere buffs toevoegen:
+        else if (buffName == "+10 Extra Money per zombie")
+        {
+            moneyPerZombie += 10;
+        }
+
+        // etc.
+    }
     private void PrepareWaveForDay(int day)
     {
         waveNumber = day;
@@ -134,8 +153,6 @@ public class WaveSpawner : MonoBehaviour
         if (zombiesAlive <= 0)
         {
             waveActive = false;
-
-            
 
             Debug.Log($"Wave {waveNumber} gedaan!");
 
