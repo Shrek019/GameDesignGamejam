@@ -200,6 +200,13 @@ public class WaveSpawner : MonoBehaviour
                 gameOverText.text = $"Game Over!\nBuilding Score: {totalScore}";
 
             Time.timeScale = 0f;
+            StartCoroutine(GameOverDelay());
         }
+    }
+
+    IEnumerator GameOverDelay()
+    {
+        yield return new WaitForSecondsRealtime(3f); // realtime, want Time.timeScale = 0
+        Application.Quit();
     }
 }
