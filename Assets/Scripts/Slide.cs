@@ -50,7 +50,8 @@ public class Slide : MonoBehaviour
 
     void Shoot()
     {
-        GameObject proj = Instantiate(projectilePrefab, projectileSpawn.position, projectileSpawn.rotation);
+        Vector3 spawnPos = new Vector3(projectileSpawn.position.x, projectileSpawn.position.y / 2, projectileSpawn.position.z);
+        GameObject proj = Instantiate(projectilePrefab, spawnPos, projectileSpawn.rotation);
 
         Projectile p = proj.GetComponent<Projectile>();
         if (p != null) p.damage = damage;
