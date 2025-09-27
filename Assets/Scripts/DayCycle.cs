@@ -6,6 +6,9 @@ using UnityEngine.UI;
 
 public class DayManagerTMP_Fade : MonoBehaviour
 {
+    [Header("Other UI Elements")]
+    public List<CanvasGroup> otherUI; // sleep hier alle UI die tijdelijk verborgen moet worden
+
     [Header("UI Elements")]
     public CanvasGroup dayPanel;       // CanvasGroup van het panel
     public TextMeshProUGUI dayText;    // TextMeshPro component
@@ -51,6 +54,25 @@ public class DayManagerTMP_Fade : MonoBehaviour
 
         // start de dagcyclus
         StartCoroutine(DayCycle());
+    }
+    private void HideOtherUI()
+    {
+        foreach (var ui in otherUI)
+        {
+            ui.alpha = 0f;
+            ui.interactable = false;
+            ui.blocksRaycasts = false;
+        }
+    }
+
+    private void ShowOtherUI()
+    {
+        foreach (var ui in otherUI)
+        {
+            ui.alpha = 1f;
+            ui.interactable = true;
+            ui.blocksRaycasts = true;
+        }
     }
 
     private IEnumerator DayCycle()
@@ -155,6 +177,7 @@ public class DayManagerTMP_Fade : MonoBehaviour
 
     public IEnumerator ShowNightCards()
     {
+        HideOtherUI();
         yield return new WaitForSeconds(panelDelay);
 
         string goodText = buffs[Random.Range(0, buffs.Count)];
@@ -177,6 +200,8 @@ public class DayManagerTMP_Fade : MonoBehaviour
         // Wacht tot kaarten gekozen zijn
         while (!cardsChosen)
             yield return null;
+
+        ShowOtherUI();
     }
 
     private IEnumerator FlipCardManual(bool isGood, string cardText)

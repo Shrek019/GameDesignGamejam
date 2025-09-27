@@ -65,6 +65,10 @@ PrefabInstance:
       value: SM_Slide
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 263293ae387f6de459e9f61f39aa8e48, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 263293ae387f6de459e9f61f39aa8e48, type: 3}
       propertyPath: m_TagString
       value: Building
       objectReference: {fileID: 0}

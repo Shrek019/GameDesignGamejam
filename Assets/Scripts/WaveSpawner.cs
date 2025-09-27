@@ -30,6 +30,7 @@ public class WaveSpawner : MonoBehaviour
     public DayManagerTMP_Fade dayManager;
 
     private bool waveReady = false; // arrows zijn actief, wave kan gestart worden
+    public CanvasGroup waveUI;
 
     void Start()
     {
@@ -49,6 +50,12 @@ public class WaveSpawner : MonoBehaviour
 
     void Update()
     {
+        if (waveUI != null)
+        {
+            waveUI.alpha = waveReady ? 1f : 0f;
+            waveUI.interactable = waveReady;
+            waveUI.blocksRaycasts = waveReady;
+        }
         // Start wave met spatie als arrows al actief zijn
         if (waveReady && !waveActive && Input.GetKeyDown(KeyCode.Space))
         {

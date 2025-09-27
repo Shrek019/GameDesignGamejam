@@ -64,6 +64,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SM_Sandbox2
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: fd7c0d6f2fcef004c8924c5c27d450a2, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
