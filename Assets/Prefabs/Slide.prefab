@@ -130,7 +130,7 @@ MonoBehaviour:
   projectileSpeed: 15
   damage: 10
   detectionRange: 4
-  forwardThreshold: 1
+  forwardThreshold: 0.36
 --- !u!114 &8758272541439865243
 MonoBehaviour:
   m_ObjectHideFlags: 0
