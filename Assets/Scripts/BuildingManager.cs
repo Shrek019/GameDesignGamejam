@@ -302,5 +302,20 @@ public class BuildingManager : MonoBehaviour
             currentRangePreview = null;
         }
     }
+    // Selecteer prefab via UI-kaart
+    public void SelectBuildingFromUI(int index)
+    {
+        switch (index)
+        {
+            case 0: SelectPrefab(sandboxPrefab); break;
+            case 1: SelectPrefab(wallPrefab); break;
+            case 2: SelectPrefab(swingPrefab); break;
+            case 3: SelectPrefab(slidePrefab); break;
+        }
+
+        // Als we nog niet aan het plaatsen zijn, start placement
+        if (!isPlacing) TogglePlacement();
+    }
+
     #endregion
 }
