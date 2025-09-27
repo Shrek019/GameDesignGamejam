@@ -163,6 +163,20 @@ public class DayManagerTMP_Fade : MonoBehaviour
             dayText.text += c;
             yield return new WaitForSeconds(speed);
         }
+        yield return new WaitForSeconds(0.5f);
+
+        if (currentDay == 1)
+        {
+            string newText = "Defend your Playground!";
+            dayText.text = "";
+            dayText.alpha = 1f;
+
+            foreach (char c in newText)
+            {
+                dayText.text += c;
+                yield return new WaitForSeconds(0.1f);
+            }
+        }
     }
 
     private IEnumerator FadeOutText()

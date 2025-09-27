@@ -1,7 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 public class WaveSpawner : MonoBehaviour
 {
@@ -20,7 +22,7 @@ public class WaveSpawner : MonoBehaviour
     private List<int> activeSpawnIndices = new List<int>();
 
     [Header("Core Health")]
-    public Slider coreHealthSlider;
+    public UnityEngine.UI.Slider coreHealthSlider;
     public int coreMaxHealth = 100;
     public int coreCurrentHealth;
 
@@ -31,6 +33,9 @@ public class WaveSpawner : MonoBehaviour
 
     private bool waveReady = false; // arrows zijn actief, wave kan gestart worden
     public CanvasGroup waveUI;
+
+    public CanvasGroup gameOverUI;
+    public TextMeshProUGUI gameOverText;
 
 
     void Start()
@@ -176,6 +181,22 @@ public class WaveSpawner : MonoBehaviour
             coreHealthSlider.value = coreCurrentHealth;
 
         if (coreCurrentHealth <= 0)
+        {
             Debug.Log("Game Over! De speeltuin is gevallen!");
+            if (gameOverUI != null)
+                gameOverUI.alpha = 1f;
+
+            int totalScore = 0;
+
+            // Zoek alle gebouwen in de scene met tag "Building"
+            GameObject[] buildings = GameObject.FindGameObjectsWithTag("Building");
+            foreach (GameObject building in buildings)
+            {
+                totalScore += 1; // score van dat gebouw
+            }
+
+            if (gameOverText != null)
+                gameOverText.text = $"Game Over!\nBuilding Score: {totalScore}";
+        }
     }
 }
