@@ -1,4 +1,3 @@
-// Nieuw script: BillboardFollow.cs
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,35 +7,27 @@ public class Billboard : MonoBehaviour
     public float heightOffset = 2f;
     private Camera mainCamera;
     public Slider slider;
-    public GameObject buildingObject; // verwijzing naar het gebouw
-    private BuildingManager buildingManager; // component
+    public BuildingManager buildingManager; // link naar het script om health te volgen
 
     void Start()
     {
         mainCamera = Camera.main;
-
-
-        if (buildingObject != null)
-        {
-            buildingManager = buildingObject.GetComponent<BuildingManager>();
-        }
     }
 
     void LateUpdate()
     {
         if (target == null || mainCamera == null) return;
 
-        // Position boven het gebouw
+        // Zorg dat de healthbar boven het gebouw blijft
         transform.position = target.position + Vector3.up * heightOffset;
 
-        // Kijk naar camera
+        // Kijk altijd naar de camera
         transform.forward = mainCamera.transform.forward;
 
-        // update slider
+        // update slider op basis van BuildingManager health
         if (slider != null && buildingManager != null)
         {
             slider.value = buildingManager.health;
         }
-
     }
 }

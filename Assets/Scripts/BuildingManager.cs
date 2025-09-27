@@ -31,12 +31,7 @@ public class BuildingManager : MonoBehaviour
     private GameObject selectedPrefab;
     private float currentRotation = 0f;
 
-    [Header("UI")]
-    public GameObject healthBarPrefab; // world-space canvas met slider
-    private GameObject buildingInstance;
-    private Slider buildingHealthSlider;
-    private GameObject buildingHealthBar;
-
+    public AudioSource hitSound;
     public int health = 20;
 
     void Update()
@@ -61,6 +56,7 @@ public class BuildingManager : MonoBehaviour
     public void TakeDamage(int amount)
     {
         health -= amount;
+        hitSound.Play();
         if (health <= 0)
         {
             Destroy(gameObject);
@@ -157,39 +153,18 @@ public class BuildingManager : MonoBehaviour
         else if (selectedPrefab == swingPrefab) cost = 20;
         else if (selectedPrefab == slidePrefab) cost = 40;
 
-        if (moneyManager != null)
+        if (moneyManager != null && !moneyManager.SpendMoney(cost))
         {
-            bool couldSpend = moneyManager.SpendMoney(cost);
-            if (!couldSpend)
-            {
-                Debug.Log("Niet genoeg geld om deze building te plaatsen!");
-                return;
-            }
+            Debug.Log("Niet genoeg geld om deze building te plaatsen!");
+            return;
         }
 
         RestoreOriginalMaterials(currentBuilding);
-        buildingInstance = currentBuilding;
-
         currentBuilding = null;
         DestroyRangePreview();
 
-        // In PlaceBuilding()
-        if (healthBarPrefab != null)
-        {
-            // Instantiate los van parent
-            buildingHealthBar = Instantiate(
-                healthBarPrefab,
-                buildingInstance.transform.position + Vector3.up * 2f,
-                Quaternion.identity
-            );
-
-            buildingHealthSlider = buildingHealthBar.GetComponentInChildren<Slider>();
-            buildingHealthSlider.maxValue = health;
-            buildingHealthSlider.value = health;
-
-
-        }
     }
+
 
 
     #endregion

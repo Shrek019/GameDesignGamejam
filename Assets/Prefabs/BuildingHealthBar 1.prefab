@@ -429,4 +429,4 @@ MonoBehaviour:
   target: {fileID: 0}
   heightOffset: 2
   slider: {fileID: 1793046877427478937}
-  buildingObject: {fileID: 6124480902342865455, guid: 00b76045a8260f54ba6ae8f2cee16fe5, type: 3}
+  buildingManager: {fileID: 2058262540500456669, guid: 00b76045a8260f54ba6ae8f2cee16fe5, type: 3}

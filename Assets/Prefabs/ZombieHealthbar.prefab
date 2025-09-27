@@ -153,7 +153,7 @@ MonoBehaviour:
   target: {fileID: 0}
   heightOffset: 2
   slider: {fileID: 1256148520830547526}
-  buildingObject: {fileID: 6124480902342865455, guid: 00b76045a8260f54ba6ae8f2cee16fe5, type: 3}
+  buildingManager: {fileID: 2058262540500456669, guid: 00b76045a8260f54ba6ae8f2cee16fe5, type: 3}
 --- !u!1 &1746731997458047608
 GameObject:
   m_ObjectHideFlags: 0

@@ -36,6 +36,7 @@ public class WaveSpawner : MonoBehaviour
 
     public CanvasGroup gameOverUI;
     public TextMeshProUGUI gameOverText;
+    public AudioSource waveSound;
 
 
     void Start()
@@ -131,7 +132,7 @@ public class WaveSpawner : MonoBehaviour
         waveReady = false; // arrows zijn al actief, nu wave bezig
 
         zombiesAlive = Random.Range(3 + (waveNumber - 1) * 2, 6 + (waveNumber - 1) * 2);
-
+        waveSound.Play();
         for (int i = 0; i < zombiesAlive; i++)
         {
             int spawnIndex = activeSpawnIndices[Random.Range(0, activeSpawnIndices.Count)];
@@ -147,7 +148,7 @@ public class WaveSpawner : MonoBehaviour
 
             yield return new WaitForSeconds(0.5f);
         }
-
+        waveSound.Stop();
         Debug.Log($"Wave {waveNumber} gestart met {zombiesAlive} zombies.");
         // arrows blijven actief tot alle zombies dood zijn
     }
