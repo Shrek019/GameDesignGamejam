@@ -7,11 +7,11 @@ public class Slide : MonoBehaviour
     public Transform projectileSpawn;
     public float shootInterval = 2f;
     public float projectileSpeed = 15f;
-    public int damage = 10; // hoeveel schade elk projectile doet
+    public int damage = 10;
 
     [Header("Detection Settings")]
-    public float detectionRange = 3f; // radius van detectie
-    [Range(0f, 1f)] public float forwardThreshold = 0.7f; // 1 = exact vooruit, 0.7 ≈ 45° cone
+    public float detectionRange = 3f;
+    [Range(0f, 1f)] public float forwardThreshold = 0.7f;
 
     private float timer;
 
@@ -19,16 +19,15 @@ public class Slide : MonoBehaviour
     {
         timer += Time.deltaTime;
 
-        if (timer >= shootInterval && EnemyInFront())
+        if (timer >= shootInterval && EnemyBehind())
         {
             Shoot();
             timer = 0f;
         }
     }
 
-    bool EnemyInFront()
+    bool EnemyBehind()
     {
-        // Alle colliders in range
         Collider[] hits = Physics.OverlapSphere(transform.position, detectionRange);
         foreach (var hit in hits)
         {
@@ -38,8 +37,8 @@ public class Slide : MonoBehaviour
                 // Richting naar enemy
                 Vector3 dirToEnemy = (enemy.transform.position - transform.position).normalized;
 
-                // Check of enemy in front cone staat
-                float dot = Vector3.Dot(transform.forward, dirToEnemy);
+                // Check of enemy in "achter-cone" zit
+                float dot = Vector3.Dot(-transform.forward, dirToEnemy);
                 if (dot >= forwardThreshold)
                 {
                     return true;
@@ -53,26 +52,24 @@ public class Slide : MonoBehaviour
     {
         GameObject proj = Instantiate(projectilePrefab, projectileSpawn.position, projectileSpawn.rotation);
 
-        // Voeg damage toe aan projectile
         Projectile p = proj.GetComponent<Projectile>();
         if (p != null) p.damage = damage;
 
         Rigidbody rb = proj.GetComponent<Rigidbody>();
         if (rb != null)
-            rb.linearVelocity = transform.forward * projectileSpeed;
+            rb.linearVelocity = -transform.forward * projectileSpeed; // schiet naar achteren
 
-        Destroy(proj, 5f); // auto destroy
+        Destroy(proj, 5f);
     }
 
-    // Range visualisatie in editor
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.cyan;
         Gizmos.DrawWireSphere(transform.position, detectionRange);
 
-        // Cone-indicatie (optioneel)
-        Vector3 right = Quaternion.Euler(0, Mathf.Acos(forwardThreshold) * Mathf.Rad2Deg, 0) * transform.forward;
-        Vector3 left = Quaternion.Euler(0, -Mathf.Acos(forwardThreshold) * Mathf.Rad2Deg, 0) * transform.forward;
+        // Cone voor achterzijde
+        Vector3 right = Quaternion.Euler(0, Mathf.Acos(forwardThreshold) * Mathf.Rad2Deg, 0) * -transform.forward;
+        Vector3 left = Quaternion.Euler(0, -Mathf.Acos(forwardThreshold) * Mathf.Rad2Deg, 0) * -transform.forward;
         Gizmos.DrawLine(transform.position, transform.position + right * detectionRange);
         Gizmos.DrawLine(transform.position, transform.position + left * detectionRange);
     }
