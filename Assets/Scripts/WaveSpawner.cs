@@ -6,12 +6,14 @@ public class WaveSpawner : MonoBehaviour
 {
     [Header("Zombie Settings")]
     public GameObject zombiePrefab;
-    public Transform[] spawnPoints; // meerdere spawnpoints
+    public Transform[] spawnPoints; // 4 pijlen: boven, onder, links, rechts
+    public GameObject[] arrowIndicators; // verwijzingen naar de pijlen/indicatoren
     public Transform core;
 
     [Header("Wave Settings")]
     public int waveNumber = 1;
     private bool waveActive = false;
+    public int maxWaves = 5;
 
     [Header("Core Health")]
     public Slider coreHealthSlider;
@@ -23,6 +25,10 @@ public class WaveSpawner : MonoBehaviour
         coreCurrentHealth = coreMaxHealth;
         coreHealthSlider.maxValue = coreMaxHealth;
         coreHealthSlider.value = coreMaxHealth;
+
+        // Zet alle pijlen uit bij start
+        foreach (GameObject arrow in arrowIndicators)
+            arrow.SetActive(false);
     }
 
     void Update()
@@ -30,7 +36,10 @@ public class WaveSpawner : MonoBehaviour
         // Spatie = start wave
         if (Input.GetKeyDown(KeyCode.Space) && !waveActive)
         {
-            StartCoroutine(SpawnWave());
+            if (waveNumber <= maxWaves)
+                StartCoroutine(SpawnWave());
+            else
+                Debug.Log("Alle waves zijn al geweest!");
         }
     }
 
@@ -38,13 +47,22 @@ public class WaveSpawner : MonoBehaviour
     {
         waveActive = true;
 
-        // aantal zombies = 4 + (waveNumber - 1) * 2  t.e.m. 7 + (waveNumber - 1) * 2
+        // Bepaal aantal actieve richtingen voor deze wave (dag 1:1, dag2:2,...)
+        int activeDirections = Mathf.Min(waveNumber, spawnPoints.Length);
+
+        // Zet pijlen visueel aan
+        for (int i = 0; i < arrowIndicators.Length; i++)
+        {
+            arrowIndicators[i].SetActive(i < activeDirections);
+        }
+
+        // aantal zombies = 4 + (waveNumber - 1) * 2 t.e.m. 7 + (waveNumber - 1) * 2
         int zombieCount = Random.Range(4 + (waveNumber - 1) * 2, 8 + (waveNumber - 1) * 2);
 
         for (int i = 0; i < zombieCount; i++)
         {
-            // kies random spawnpoint
-            Transform spawn = spawnPoints[Random.Range(0, spawnPoints.Length)];
+            // Kies random spawnpoint uit actieve richtingen
+            Transform spawn = spawnPoints[Random.Range(0, activeDirections)];
 
             GameObject z = Instantiate(zombiePrefab, spawn.position, Quaternion.identity);
             z.GetComponent<Zombie>().Init(core, this);

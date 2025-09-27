@@ -11,6 +11,7 @@ public class Sandbox : MonoBehaviour
     public int maxHealth = 50;
     private int currentHealth;
 
+    [Header("Damage Settings")]
     public int damagePerEnemy = 1;       // hoeveel schade per enemy
     public float damageInterval = 1f;    // hoe vaak enemies schade toebrengen (per seconde)
 
@@ -24,20 +25,25 @@ public class Sandbox : MonoBehaviour
         Zombie enemy = other.GetComponent<Zombie>();
         if (enemy != null)
         {
+            // Vertraag de zombie
             enemy.ApplySlow(slowMultiplier, slowDuration);
-            StartCoroutine(DamageOverTime());
+
+            // Start een coroutine die zowel de sandbox als de zombie schade toebrengt
+            StartCoroutine(DamageOverTime(enemy));
         }
     }
 
-    private System.Collections.IEnumerator DamageOverTime()
+    private System.Collections.IEnumerator DamageOverTime(Zombie enemy)
     {
-        while (true)
+        while (enemy != null && currentHealth > 0)
         {
+            // Sandbox neemt damage
             TakeDamage(damagePerEnemy);
-            yield return new WaitForSeconds(damageInterval);
 
-            if (currentHealth <= 0)
-                yield break; // stopt als kapot
+            // Enemy neemt damage
+            enemy.TakeDamage(damagePerEnemy);
+
+            yield return new WaitForSeconds(damageInterval);
         }
     }
 

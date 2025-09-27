@@ -9,6 +9,9 @@ public class BuildingManager : MonoBehaviour
     public GameObject swingPrefab;
     public GameObject slidePrefab;
 
+    [Header("References")]
+    public MoneyManager moneyManager;
+
     [Header("Placement Settings")]
     public Material placeholderMaterial;
     public LayerMask groundLayer;
@@ -20,6 +23,8 @@ public class BuildingManager : MonoBehaviour
 
     [Header("Range Preview")]
     public GameObject rangePreviewPrefab;
+
+    [HideInInspector] public int currentBuildingCost = 0;
 
     private GameObject currentBuilding;
     private GameObject currentRangePreview;
@@ -200,10 +205,29 @@ public class BuildingManager : MonoBehaviour
 
     void PlaceBuilding()
     {
+        int cost = 0;
+
+        if (selectedPrefab == sandboxPrefab) cost = 10;
+        else if (selectedPrefab == wallPrefab) cost = 5;
+        else if (selectedPrefab == swingPrefab) cost = 20;
+        else if (selectedPrefab == slidePrefab) cost = 40;
+
+        if (moneyManager != null)
+        {
+            bool couldSpend = moneyManager.SpendMoney(cost);
+            if (!couldSpend)
+            {
+                Debug.Log("Niet genoeg geld om deze building te plaatsen!");
+                return;
+            }
+        }
+
         RestoreOriginalMaterials(currentBuilding);
         currentBuilding = null;
         DestroyRangePreview();
     }
+
+
     #endregion
 
     #region Materials
@@ -305,8 +329,10 @@ public class BuildingManager : MonoBehaviour
         }
     }
     // Selecteer prefab via UI-kaart
-    public void SelectBuildingFromUI(int index)
+    public void SelectBuildingFromUI(int index, int cost)
     {
+        currentBuildingCost = cost;
+
         switch (index)
         {
             case 0: SelectPrefab(sandboxPrefab); break;
@@ -315,9 +341,9 @@ public class BuildingManager : MonoBehaviour
             case 3: SelectPrefab(slidePrefab); break;
         }
 
-        // Als we nog niet aan het plaatsen zijn, start placement
         if (!isPlacing) TogglePlacement();
     }
+
 
     #endregion
 }

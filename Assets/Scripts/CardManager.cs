@@ -6,13 +6,15 @@ using System.Collections.Generic;
 public class CardManager : MonoBehaviour
 {
     [Header("UI Settings")]
-    public RectTransform cardContainer;      // Panel onderaan
-    public List<GameObject> cardPrefabs;     // Je 4 verschillende kaartprefabs
+    public RectTransform cardContainer;
+    public List<GameObject> cardPrefabs;
+    public List<int> cardCosts; //zelfde index als cardPrefabs
     public float hoverOffset = 110f;
     public float spacing = 260f;
 
     [Header("References")]
     public BuildingManager buildingManager;
+    public MoneyManager moneyManager;
 
     [Header("Gameplay Settings")]
     public int maxCards = 4;
@@ -23,11 +25,8 @@ public class CardManager : MonoBehaviour
 
     void Start()
     {
-        // Voeg alle kaarten toe in volgorde
         for (int i = 0; i < Mathf.Min(maxCards, cardPrefabs.Count); i++)
-        {
             AddCard(i);
-        }
     }
 
     void Update()
@@ -38,11 +37,7 @@ public class CardManager : MonoBehaviour
     #region Card Setup
     void AddCard(int prefabIndex)
     {
-        if (cards.Count >= maxCards)
-        {
-            Debug.Log("Max cards reached!");
-            return;
-        }
+        if (cards.Count >= maxCards) return;
 
         GameObject prefab = cardPrefabs[prefabIndex];
         GameObject newCard = Instantiate(prefab, cardContainer);
@@ -52,14 +47,9 @@ public class CardManager : MonoBehaviour
         RectTransform rt = newCard.GetComponent<RectTransform>();
         Vector2 basePos = new Vector2(index * spacing, 0);
         rt.anchoredPosition = basePos;
-
-        // Sla originele positie op
         originalCardPositions[newCard] = basePos;
 
-        // Voeg hover effect toe
         AddHoverEffect(newCard, rt);
-
-        // Voeg klik selectie toe
         AddCardClick(newCard, prefabIndex);
     }
     #endregion
@@ -70,9 +60,10 @@ public class CardManager : MonoBehaviour
         EventTrigger trigger = card.GetComponent<EventTrigger>();
         if (trigger == null) trigger = card.AddComponent<EventTrigger>();
 
-        // Pointer Enter
-        EventTrigger.Entry enterEntry = new EventTrigger.Entry();
-        enterEntry.eventID = EventTriggerType.PointerEnter;
+        EventTrigger.Entry enterEntry = new EventTrigger.Entry
+        {
+            eventID = EventTriggerType.PointerEnter
+        };
         enterEntry.callback.AddListener((eventData) =>
         {
             if (selectedCard != card)
@@ -80,9 +71,10 @@ public class CardManager : MonoBehaviour
         });
         trigger.triggers.Add(enterEntry);
 
-        // Pointer Exit
-        EventTrigger.Entry exitEntry = new EventTrigger.Entry();
-        exitEntry.eventID = EventTriggerType.PointerExit;
+        EventTrigger.Entry exitEntry = new EventTrigger.Entry
+        {
+            eventID = EventTriggerType.PointerExit
+        };
         exitEntry.callback.AddListener((eventData) =>
         {
             if (selectedCard != card)
@@ -98,10 +90,7 @@ public class CardManager : MonoBehaviour
         Button btn = card.GetComponent<Button>();
         if (btn == null) btn = card.AddComponent<Button>();
 
-        btn.onClick.AddListener(() =>
-        {
-            SelectCard(card, prefabIndex);
-        });
+        btn.onClick.AddListener(() => SelectCard(card, prefabIndex));
     }
     #endregion
 
@@ -124,19 +113,28 @@ public class CardManager : MonoBehaviour
     #region Selection Logic
     void SelectCard(GameObject card, int prefabIndex)
     {
+        int cost = cardCosts[prefabIndex];
+
+        // Check of er genoeg geld is
+        if (moneyManager.GetCurrentMoney() < cost)
+        {
+            Debug.Log("Niet genoeg geld!");
+            return;
+        }
+
         // Reset vorige geselecteerde kaart
         if (selectedCard != null && originalCardPositions.ContainsKey(selectedCard))
             selectedCard.GetComponent<RectTransform>().anchoredPosition = originalCardPositions[selectedCard];
 
         selectedCard = card;
 
-        // Til de geselecteerde kaart omhoog
+        // Til geselecteerde kaart omhoog
         if (originalCardPositions.ContainsKey(card))
             card.GetComponent<RectTransform>().anchoredPosition = originalCardPositions[card] + new Vector2(0, hoverOffset);
 
-        // Selecteer prefab in BuildingManager
+        // Selecteer prefab in BuildingManager en geef cost mee
         if (buildingManager != null)
-            buildingManager.SelectBuildingFromUI(prefabIndex);
+            buildingManager.SelectBuildingFromUI(prefabIndex, cost);
     }
     #endregion
 }
