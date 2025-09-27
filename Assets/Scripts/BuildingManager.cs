@@ -307,7 +307,7 @@ public class BuildingManager : MonoBehaviour
 
         if (selectedPrefab == swingPrefab)
         {
-            currentRangePreview.transform.position = currentBuilding.transform.position;
+            currentBuilding.transform.rotation = Quaternion.Euler(-90f, currentRotation, 0f);
             currentRangePreview.transform.rotation = Quaternion.Euler(0f, currentBuilding.transform.eulerAngles.y, 0f);
         }
         else if (selectedPrefab == slidePrefab)

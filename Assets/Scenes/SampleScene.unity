@@ -286,7 +286,7 @@ Transform:
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
   m_LocalRotation: {x: 0.6427876, y: 0, z: 0, w: 0.7660445}
-  m_LocalPosition: {x: -2.09, y: 5.28, z: 0}
+  m_LocalPosition: {x: -1.4, y: 5.56, z: -0.05}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2425,7 +2425,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.4147, y: 1, z: 1}
+  m_LocalScale: {x: 2, y: 1, z: 2}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -2442,9 +2442,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b437f9a8ce4b9eb4581f6c7491f08165, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sandboxPrefab: {fileID: 5197104148218027302, guid: 63cebf008d9b72b4a957db17bc587a3e, type: 3}
-  wallPrefab: {fileID: 5360622547816487004, guid: 7cf80913bbf19a341b96a5a973f4d6b8, type: 3}
-  swingPrefab: {fileID: 3555308686644937535, guid: c05ce3783041e784a8d746fee67c7abc, type: 3}
+  sandboxPrefab: {fileID: 8729681385790457611, guid: 249d4e0b89175a34bbdb6ecaa0ddf5c9, type: 3}
+  wallPrefab: {fileID: 6880888895744726272, guid: 8ec29eb80cedeee4d907d781928fd07f, type: 3}
+  swingPrefab: {fileID: 6494249040508361781, guid: 5f0c1eef983e0324594fe6b7201a43aa, type: 3}
   slidePrefab: {fileID: 4630699571442286960, guid: 5126a03b68209f84abf425e043ac1ae9, type: 3}
   moneyManager: {fileID: 1903676884}
   placeholderMaterial: {fileID: 2100000, guid: a68358d06e1ab854987eb98852a3a82c, type: 2}
