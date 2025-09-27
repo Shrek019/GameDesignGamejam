@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(Rigidbody))]
 public class Zombie : MonoBehaviour
@@ -24,7 +25,13 @@ public class Zombie : MonoBehaviour
     private Coroutine slowRoutine;
     private GameObject currentBuildingTarget;
 
+    private Coroutine dotRoutine;
+
     private Rigidbody rb;
+
+    public GameObject healthBarPrefab;
+    private GameObject healthBarInstance;
+    private Slider healthBarSlider;
 
     #region Initialization
     public void Init(Transform coreTransform, WaveSpawner spawner)
@@ -39,6 +46,29 @@ public class Zombie : MonoBehaviour
         rb.interpolation = RigidbodyInterpolation.Interpolate;
         rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic; // voorkomt vastlopen bij snelle collisions
         rb.isKinematic = false;
+
+        // Spawn health bar
+        if (healthBarPrefab != null)
+        {
+            healthBarInstance = Instantiate(healthBarPrefab, transform.position + Vector3.up * 2f, Quaternion.identity, transform);
+            healthBarSlider = healthBarInstance.GetComponentInChildren<Slider>();
+            healthBarSlider.maxValue = maxHealth;
+            healthBarSlider.value = currentHealth;
+        }
+    }
+    void Start()
+    {
+        // Start de DoT zodra de zombie spawnt
+        dotRoutine = StartCoroutine(HealthDecay());
+    }
+
+    private IEnumerator HealthDecay()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(2f); // elke 2 seconden
+            TakeDamage(1); // 1 health verliezen
+        }
     }
     #endregion
 
@@ -138,9 +168,9 @@ public class Zombie : MonoBehaviour
     {
         while (building != null)
         {
-            Destructible destructible = building.GetComponent<Destructible>();
-            if (destructible != null)
-                destructible.TakeDamage(damage);
+            BuildingManager buildingManager = building.GetComponent<BuildingManager>();
+            if (buildingManager != null)
+                buildingManager.TakeDamage(damage);
             else
                 Destroy(building);
 
@@ -176,6 +206,10 @@ public class Zombie : MonoBehaviour
     public void TakeDamage(int amount)
     {
         currentHealth -= amount;
+        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
+        if (healthBarSlider != null)
+            healthBarSlider.value = currentHealth;
+
         if (currentHealth <= 0)
             Die();
     }

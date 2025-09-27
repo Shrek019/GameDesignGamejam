@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.UI;
 
 public class BuildingManager : MonoBehaviour
 {
@@ -16,11 +17,6 @@ public class BuildingManager : MonoBehaviour
     [Header("Placement Settings")]
     public Material placeholderMaterial;
     public LayerMask groundLayer;
-    public float gridSize = 1f;
-
-    [Header("Grid Settings")]
-    public GameObject linePrefab;
-    public Color gridColor = new Color(0f, 1f, 0f, 0.3f);
 
     [Header("Range Preview")]
     public GameObject rangePreviewPrefab;
@@ -34,6 +30,14 @@ public class BuildingManager : MonoBehaviour
     private GameObject gridParent;
     private GameObject selectedPrefab;
     private float currentRotation = 0f;
+
+    [Header("UI")]
+    public GameObject healthBarPrefab; // world-space canvas met slider
+    private GameObject buildingInstance;
+    private Slider buildingHealthSlider;
+    private GameObject buildingHealthBar;
+
+    public int health = 20;
 
     void Update()
     {
@@ -54,7 +58,14 @@ public class BuildingManager : MonoBehaviour
             }
         }
     }
-
+    public void TakeDamage(int amount)
+    {
+        health -= amount;
+        if (health <= 0)
+        {
+            Destroy(gameObject);
+        }
+    }
 
     #region Building Selection
     void HandleBuildingSelection()
@@ -137,15 +148,6 @@ public class BuildingManager : MonoBehaviour
         return bounds.size.y;
     }
 
-    Vector3 SnapToGrid(Vector3 position)
-    {
-        return new Vector3(
-            Mathf.Round(position.x / gridSize) * gridSize,
-            Mathf.Round(position.y / gridSize) * gridSize,
-            Mathf.Round(position.z / gridSize) * gridSize
-        );
-    }
-
     void PlaceBuilding()
     {
         int cost = 0;
@@ -168,6 +170,15 @@ public class BuildingManager : MonoBehaviour
         RestoreOriginalMaterials(currentBuilding);
         currentBuilding = null;
         DestroyRangePreview();
+
+        // Health bar instantiëren
+        if (healthBarPrefab != null)
+        {
+            buildingHealthBar = Instantiate(healthBarPrefab, buildingInstance.transform.position + Vector3.up * 2f, Quaternion.identity, buildingInstance.transform);
+            buildingHealthSlider = buildingHealthBar.GetComponentInChildren<Slider>();
+            buildingHealthSlider.maxValue = health;
+            buildingHealthSlider.value = health;
+        }
 
         // Reset geselecteerde kaart
         if (cardManager != null)

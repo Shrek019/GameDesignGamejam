@@ -126,10 +126,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 10
   speed: 2
-  attackInterval: 1.5
+  attackInterval: 1.72
   damage: 5
   attackRange: 1.2
   buildingDetectRange: 5
+  healthBarPrefab: {fileID: 1565131602691460347, guid: 24392bb3f5c3fc6418e768ec15477761, type: 3}
 --- !u!54 &-9220438628601532367
 Rigidbody:
   m_ObjectHideFlags: 0
