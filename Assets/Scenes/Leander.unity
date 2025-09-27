@@ -766,18 +766,21 @@ MonoBehaviour:
   dayText: {fileID: 1685998297}
   currentDay: 1
   maxDays: 5
-  dayDuration: 5
+  dayDuration: 2
   panelVisibleTime: 3
   fadeTime: 0.5
   textTypeSpeed: 0.2
   goodCardPrefab: {fileID: 3301445516839624907, guid: 9725122eae1782f45a81b7d180c2800c, type: 3}
   badCardPrefab: {fileID: 2644360829615145898, guid: 56f1b39552dde4445aaac11d9e9486ba, type: 3}
+  cardBackPrefab: {fileID: 4368502305109348418, guid: 9dc75447c7b6148468f7604b4f6539e0, type: 3}
   cardContainer: {fileID: 603157748}
   panelDelay: 0.5
   buffs:
-  - Buff
+  - 50% more coins
+  - Enemies are 15% slower
   debuffs:
-  - Debuff
+  - Enemies deal 5% more damage
+  - Prepare for 1 extra day
 --- !u!114 &1806687850
 MonoBehaviour:
   m_ObjectHideFlags: 0

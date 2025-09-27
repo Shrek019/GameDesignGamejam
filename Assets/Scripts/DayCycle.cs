@@ -23,6 +23,7 @@ public class DayManagerTMP_Fade : MonoBehaviour
     [Header("Buff Elements")]
     public GameObject goodCardPrefab;
     public GameObject badCardPrefab;
+    public GameObject cardBackPrefab;
 
     public Transform cardContainer;
 
@@ -33,6 +34,11 @@ public class DayManagerTMP_Fade : MonoBehaviour
 
     private GameObject currentGoodCard;
     private GameObject currentBadCard;
+
+    private Vector2 leftPos = new Vector2(-150f, 0f);
+    private Vector2 rightPos = new Vector2(150f, 0f);
+
+    private bool cardsChosen = false;
 
     private void Start()
     {
@@ -51,13 +57,20 @@ public class DayManagerTMP_Fade : MonoBehaviour
     {
         while (currentDay <= maxDays)
         {
-            yield return new WaitForSeconds(dayDuration);
-
+            // Toon dagpanel
             yield return StartCoroutine(ShowDayPanel(currentDay));
 
+            // Wacht tot kaarten gekozen zijn
+            cardsChosen = false;
+            yield return StartCoroutine(ShowNightCards());
+            while (!cardsChosen)
+                yield return null;
+
+            // Nu pas start de dag timer
+            yield return new WaitForSeconds(dayDuration);
+
             currentDay++;
-            StartCoroutine(ShowNightCards());
-        }        
+        }
     }
 
     private IEnumerator ShowDayPanel(int day)
@@ -125,27 +138,152 @@ public class DayManagerTMP_Fade : MonoBehaviour
     {
         yield return new WaitForSeconds(panelDelay);
 
-        // Kies random buff/debuff
         string goodText = buffs[Random.Range(0, buffs.Count)];
         string badText = debuffs[Random.Range(0, debuffs.Count)];
 
-        // Spawn good card
-        currentGoodCard = Instantiate(goodCardPrefab, cardContainer);
-        TMP_Text goodTMP = currentGoodCard.transform.Find("Text").GetComponent<TMP_Text>();
-        goodTMP.text = goodText;
+        // Spawn backcards handmatig
+        currentGoodCard = Instantiate(cardBackPrefab, cardContainer);
+        currentGoodCard.GetComponent<RectTransform>().anchoredPosition = leftPos;
 
-        // Spawn bad card
-        currentBadCard = Instantiate(badCardPrefab, cardContainer);
-        TMP_Text badTMP = currentGoodCard.transform.Find("Text").GetComponent<TMP_Text>();
-        badTMP.text = badText;
+        currentBadCard = Instantiate(cardBackPrefab, cardContainer);
+        currentBadCard.GetComponent<RectTransform>().anchoredPosition = rightPos;
 
-        // Voeg onclick events toe
+        // Voeg onclick toe
         Button goodBtn = currentGoodCard.GetComponent<Button>();
-        Button badBtn = currentBadCard.GetComponent<Button>();
+        goodBtn.onClick.AddListener(() => StartCoroutine(FlipCardManual(true, goodText)));
 
-        goodBtn.onClick.AddListener(() => ChooseCard(true));
-        badBtn.onClick.AddListener(() => ChooseCard(false));
+        Button badBtn = currentBadCard.GetComponent<Button>();
+        badBtn.onClick.AddListener(() => StartCoroutine(FlipCardManual(false, badText)));
+
+        // Wacht tot kaarten gekozen zijn
+        while (!cardsChosen)
+            yield return null;
     }
+
+    private IEnumerator FlipCardManual(bool isGood, string cardText)
+    {
+        GameObject chosenCardBack = isGood ? currentGoodCard : currentBadCard;
+        GameObject otherCardBack = isGood ? currentBadCard : currentGoodCard;
+
+        // Spawn gekozen kaart
+        GameObject chosenCardPrefab = Instantiate(isGood ? goodCardPrefab : badCardPrefab, cardContainer);
+        RectTransform chosenRect = chosenCardPrefab.GetComponent<RectTransform>();
+        chosenRect.anchoredPosition = chosenCardBack.GetComponent<RectTransform>().anchoredPosition;
+
+        TMP_Text tmpChosen = chosenCardPrefab.GetComponentInChildren<TMP_Text>();
+        if (tmpChosen != null) tmpChosen.text = cardText;
+
+        Destroy(chosenCardBack);
+        yield return StartCoroutine(FlipAnimationPrefab(chosenCardPrefab));
+
+        // Spawn andere kaart
+        GameObject otherCardPrefab = null;
+        if (otherCardBack != null)
+        {
+            otherCardPrefab = Instantiate(isGood ? badCardPrefab : goodCardPrefab, cardContainer);
+            RectTransform otherRect = otherCardPrefab.GetComponent<RectTransform>();
+            otherRect.anchoredPosition = otherCardBack.GetComponent<RectTransform>().anchoredPosition;
+
+            TMP_Text tmpOther = otherCardPrefab.GetComponentInChildren<TMP_Text>();
+            if (tmpOther != null)
+                tmpOther.text = isGood ? debuffs[Random.Range(0, debuffs.Count)] : buffs[Random.Range(0, buffs.Count)];
+
+            Destroy(otherCardBack);
+
+            yield return StartCoroutine(FlipAnimationPrefab(otherCardPrefab));
+        }
+
+        // Scale animaties
+        Vector3 startOther = otherCardPrefab != null ? otherCardPrefab.transform.localScale : Vector3.one;
+        Vector3 targetOther = startOther * 0.9f;
+        Vector3 startChosen = chosenCardPrefab.transform.localScale;
+        Vector3 targetChosen = startChosen * 1.2f;
+        float duration = 0.3f;
+        float t = 0f;
+        while (t < duration)
+        {
+            chosenCardPrefab.transform.localScale = Vector3.Lerp(startChosen, targetChosen, t / duration);
+            if (otherCardPrefab != null)
+                otherCardPrefab.transform.localScale = Vector3.Lerp(startOther, targetOther, t / duration);
+            t += Time.deltaTime;
+            yield return null;
+        }
+        chosenCardPrefab.transform.localScale = targetChosen;
+        if (otherCardPrefab != null)
+            otherCardPrefab.transform.localScale = targetOther;
+
+        // Wacht 1-2 seconden voordat ze verdwijnen
+        yield return new WaitForSeconds(1.5f);
+
+        // Laat de kaarten leuk weggaan (fade + move)
+        float fadeDuration = 0.5f;
+        t = 0f;
+        CanvasGroup chosenCg = chosenCardPrefab.AddComponent<CanvasGroup>();
+        CanvasGroup otherCg = null;
+        if (otherCardPrefab != null)
+            otherCg = otherCardPrefab.AddComponent<CanvasGroup>();
+
+        Vector3 chosenStartPos = chosenCardPrefab.transform.localPosition;
+        Vector3 chosenTargetPos = chosenStartPos + new Vector3(0, 100f, 0); // omhoog
+
+        Vector3 otherStartPos = otherCardPrefab != null ? otherCardPrefab.transform.localPosition : Vector3.zero;
+        Vector3 otherTargetPos = otherCardPrefab != null ? otherStartPos + new Vector3(0, 100f, 0) : Vector3.zero;
+
+        while (t < fadeDuration)
+        {
+            float alpha = Mathf.Lerp(1f, 0f, t / fadeDuration);
+            chosenCg.alpha = alpha;
+            chosenCardPrefab.transform.localPosition = Vector3.Lerp(chosenStartPos, chosenTargetPos, t / fadeDuration);
+
+            if (otherCardPrefab != null)
+            {
+                otherCg.alpha = alpha;
+                otherCardPrefab.transform.localPosition = Vector3.Lerp(otherStartPos, otherTargetPos, t / fadeDuration);
+            }
+
+            t += Time.deltaTime;
+            yield return null;
+        }
+
+        // Zorg dat ze echt weg zijn
+        Destroy(chosenCardPrefab);
+        if (otherCardPrefab != null)
+            Destroy(otherCardPrefab);
+
+        // Nu mag de dagcyclus verder
+        cardsChosen = true;
+
+        currentGoodCard = null;
+        currentBadCard = null;
+    }
+
+
+    private IEnumerator FlipAnimationPrefab(GameObject card)
+    {
+        float duration = 0.3f;
+        float elapsed = 0f;
+        Quaternion startRot = card.transform.rotation;
+        Quaternion midRot = Quaternion.Euler(0, 90f, 0);
+        Quaternion endRot = Quaternion.Euler(0, 0, 0);
+
+        while (elapsed < duration)
+        {
+            card.transform.rotation = Quaternion.Slerp(startRot, midRot, elapsed / duration);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+        card.transform.rotation = midRot;
+
+        elapsed = 0f;
+        while (elapsed < duration)
+        {
+            card.transform.rotation = Quaternion.Slerp(midRot, endRot, elapsed / duration);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+        card.transform.rotation = endRot;
+    }
+
 
     private void ChooseCard(bool isGood)
     {
