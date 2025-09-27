@@ -1,19 +1,19 @@
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
-using System.Collections.Generic;
 
 public class WaveSpawner : MonoBehaviour
 {
     [Header("Zombie Settings")]
     public GameObject zombiePrefab;
-    public Transform[] spawnPoints; // 4 pijlen: boven, onder, links, rechts
-    public GameObject[] arrowIndicators; // verwijzingen naar de pijlen/indicatoren
+    public Transform[] spawnPoints;
+    public GameObject[] arrowIndicators;
     public Transform core;
 
     [Header("Wave Settings")]
     public int waveNumber = 1;
-    public int maxWaves = 5;
+    public int maxWaves = 4; // max dag 4
     private bool waveActive = false;
     private int zombiesAlive;
 
@@ -24,38 +24,57 @@ public class WaveSpawner : MonoBehaviour
     public int coreMaxHealth = 100;
     private int coreCurrentHealth;
 
+    public MoneyManager moneyManager; // sleep hier de MoneyManager in de inspector
+    public int moneyPerZombie = 10;
+
+    public DayManagerTMP_Fade dayManager;
+
+    private bool waveReady = false; // arrows zijn actief, wave kan gestart worden
+
     void Start()
     {
         coreCurrentHealth = coreMaxHealth;
-        coreHealthSlider.maxValue = coreMaxHealth;
-        coreHealthSlider.value = coreMaxHealth;
 
-        // Bereid arrows voor de eerste wave
-        PrepareNextWaveArrows();
+        if (coreHealthSlider != null)
+        {
+            coreHealthSlider.maxValue = coreMaxHealth;
+            coreHealthSlider.value = coreCurrentHealth;
+        }
+
+        if (dayManager != null)
+        {
+            dayManager.OnDayStarted += PrepareWaveForDay;
+        }
     }
 
     void Update()
     {
-        // Spatie start de wave pas
-        if (Input.GetKeyDown(KeyCode.Space) && !waveActive)
+        // Start wave met spatie als arrows al actief zijn
+        if (waveReady && !waveActive && Input.GetKeyDown(KeyCode.Space))
         {
-            if (waveNumber <= maxWaves)
-                StartCoroutine(SpawnWave());
-            else
-                Debug.Log("Alle waves zijn al geweest!");
+            StartCoroutine(SpawnWave());
         }
     }
 
-    /// <summary>
-    /// Kies random spawnlocaties voor de volgende wave en activeer de bijbehorende arrows
-    /// </summary>
+    private void PrepareWaveForDay(int day)
+    {
+        waveNumber = day;
+
+        // Kies spawn arrows en activeer ze
+        PrepareNextWaveArrows();
+
+        // Zet flag zodat wave kan starten bij spatie
+        waveReady = true;
+
+        Debug.Log($"Dag {day} gestart. Druk op Spatie om wave te starten!");
+    }
+
     void PrepareNextWaveArrows()
     {
         activeSpawnIndices.Clear();
 
-        int directions = Mathf.Min(waveNumber, spawnPoints.Length); // dag 1 = 1, dag2=2, max 4
+        int directions = Mathf.Min(waveNumber, spawnPoints.Length); // dag 1 = 1 arrow, dag 2 = 2, max 4
 
-        // Kies unieke random indices
         List<int> indicesPool = new List<int> { 0, 1, 2, 3 };
         for (int i = 0; i < directions; i++)
         {
@@ -64,7 +83,6 @@ public class WaveSpawner : MonoBehaviour
             indicesPool.RemoveAt(randomIndex);
         }
 
-        // Activeer de bijbehorende arrows
         for (int i = 0; i < arrowIndicators.Length; i++)
         {
             if (activeSpawnIndices.Contains(i))
@@ -79,12 +97,12 @@ public class WaveSpawner : MonoBehaviour
     IEnumerator SpawnWave()
     {
         waveActive = true;
+        waveReady = false; // arrows zijn al actief, nu wave bezig
 
         zombiesAlive = Random.Range(4 + (waveNumber - 1) * 2, 8 + (waveNumber - 1) * 2);
 
         for (int i = 0; i < zombiesAlive; i++)
         {
-            // Kies random spawn uit actieve indices
             int spawnIndex = activeSpawnIndices[Random.Range(0, activeSpawnIndices.Count)];
             Transform spawn = spawnPoints[spawnIndex];
 
@@ -94,32 +112,39 @@ public class WaveSpawner : MonoBehaviour
             yield return new WaitForSeconds(0.5f);
         }
 
-        // Arrows blijven pulseren tot alle zombies dood zijn
+        Debug.Log($"Wave {waveNumber} gestart met {zombiesAlive} zombies.");
+        // arrows blijven actief tot alle zombies dood zijn
     }
 
     public void ZombieDied()
     {
         zombiesAlive--;
 
+        // Voeg geld toe bij zombie dood
+        if (moneyManager != null)
+            moneyManager.AddMoney(moneyPerZombie);
+
         if (zombiesAlive <= 0)
         {
             waveActive = false;
-            waveNumber++;
 
-            // Zet alle arrows uit
-            foreach (GameObject arrow in arrowIndicators)
-                arrow.GetComponent<ArrowIndicator>().DeactivateArrow();
+            
 
-            // Bereid arrows voor volgende wave als er nog waves over zijn
-            if (waveNumber <= maxWaves)
-                PrepareNextWaveArrows();
+            Debug.Log($"Wave {waveNumber} gedaan!");
+
+            // Zeg tegen DayManager dat wave klaar is
+            if (dayManager != null)
+                dayManager.MarkWaveDone();
         }
     }
+
 
     public void DamageCore(int damage)
     {
         coreCurrentHealth -= damage;
-        coreHealthSlider.value = coreCurrentHealth;
+
+        if (coreHealthSlider != null)
+            coreHealthSlider.value = coreCurrentHealth;
 
         if (coreCurrentHealth <= 0)
             Debug.Log("Game Over! De speeltuin is gevallen!");

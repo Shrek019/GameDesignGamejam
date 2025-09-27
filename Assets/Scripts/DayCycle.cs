@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using TMPro;
 using System.Collections;
 using System.Collections.Generic;
@@ -39,17 +39,17 @@ public class DayManagerTMP_Fade : MonoBehaviour
     private Vector2 rightPos = new Vector2(150f, 0f);
 
     private bool cardsChosen = false;
+    public System.Action<int> OnDayStarted;
 
+    // in DayManagerTMP_Fade
     private void Start()
     {
-        if (dayPanel == null || dayText == null)
-            Debug.LogError("Assign dayPanel and dayText in inspector!");
-
-        // start met invisible
+        // arrows moeten eerst hidden zijn
         dayPanel.alpha = 0f;
         dayPanel.interactable = false;
         dayPanel.blocksRaycasts = false;
 
+        // start de dagcyclus
         StartCoroutine(DayCycle());
     }
 
@@ -57,23 +57,39 @@ public class DayManagerTMP_Fade : MonoBehaviour
     {
         while (currentDay <= maxDays)
         {
-            // Toon dagpanel
+            // 1️⃣ Dag panel tonen
             yield return StartCoroutine(ShowDayPanel(currentDay));
 
-            // Wacht tot kaarten gekozen zijn
+            // 2️⃣ Kaarten kiezen
             cardsChosen = false;
             yield return StartCoroutine(ShowNightCards());
             while (!cardsChosen)
                 yield return null;
 
-            // Nu pas start de dag timer
-            yield return new WaitForSeconds(dayDuration);
+            // 3️⃣ Wave starten via WaveSpawner (dag = waveNumber)
+            waveDone = false; // reset
+            OnDayStarted?.Invoke(currentDay);
 
+            // 4️⃣ Wacht tot wave gedaan is (WaveSpawner roept MarkWaveDone aan)
+            yield return new WaitUntil(() => waveDone);
+
+            // 5️⃣ Korte pauze en naar volgende dag
             currentDay++;
         }
+
+        Debug.Log("Game voltooid ");
     }
 
-    private IEnumerator ShowDayPanel(int day)
+
+
+    // dit moet door WaveSpawner op true gezet worden!
+    private bool waveDone = false;
+    public void MarkWaveDone()
+    {
+        waveDone = true;
+    }
+
+    public IEnumerator ShowDayPanel(int day)
     {
         // Panel fade-in
         yield return StartCoroutine(FadeCanvasGroup(dayPanel, 0f, 1f, fadeTime, true));
@@ -90,6 +106,9 @@ public class DayManagerTMP_Fade : MonoBehaviour
         // Panel fade-out
         yield return StartCoroutine(FadeCanvasGroup(dayPanel, 1f, 0f, fadeTime, false));
     }
+
+
+    
 
     private IEnumerator FadeCanvasGroup(CanvasGroup cg, float from, float to, float duration, bool interactable)
     {

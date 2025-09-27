@@ -101,6 +101,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   knockbackForce: 5
   knockbackForceRange: 10
+  damage: 3
 --- !u!114 &-811469493706271440
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -113,7 +114,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9138666a6177b7c48b97db3c6f151c0c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 20
+  health: 10
 --- !u!65 &843156108389889533
 BoxCollider:
   m_ObjectHideFlags: 0
