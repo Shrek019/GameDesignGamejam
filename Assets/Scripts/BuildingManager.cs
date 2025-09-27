@@ -225,13 +225,15 @@ public class BuildingManager : MonoBehaviour
 
         if (selectedPrefab == swingPrefab)
         {
-            float range = currentBuilding.GetComponent<Swing>().knockbackForceRange;
+            float range = currentBuilding.GetComponent<Swing>().range;
+
             currentRangePreview.transform.localScale = new Vector3(1f, 0.1f, range * 2f);
             UpdateRangePreviewPosition();
         }
         else if (selectedPrefab == slidePrefab)
         {
-            float range = currentBuilding.GetComponent<Slide>().detectionRange;
+            float range = currentBuilding.GetComponent<Slide>().range;
+
             currentRangePreview.transform.localScale = new Vector3(1f, 0.1f, range);
             UpdateRangePreviewPosition();
         }
@@ -254,7 +256,7 @@ public class BuildingManager : MonoBehaviour
         else if (selectedPrefab == slidePrefab)
         {
             Slide slideComp = currentBuilding.GetComponent<Slide>();
-            Vector3 offset = currentBuilding.transform.forward * (slideComp.detectionRange / 2f);
+            Vector3 offset = currentBuilding.transform.forward * (slideComp.range / 2f);
             currentRangePreview.transform.position = currentBuilding.transform.position;// + offset;
             currentRangePreview.transform.rotation = Quaternion.Euler(0f, currentBuilding.transform.eulerAngles.y, 0f);
         }
