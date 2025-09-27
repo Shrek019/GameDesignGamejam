@@ -34,6 +34,15 @@ public class CardManager : MonoBehaviour
         HandleCardSelectionWithKeys();
     }
 
+    public void ClearSelectedCard()
+    {
+        if (selectedCard != null && originalCardPositions.ContainsKey(selectedCard))
+        {
+            selectedCard.GetComponent<RectTransform>().anchoredPosition = originalCardPositions[selectedCard];
+            selectedCard = null;
+        }
+    }
+
     #region Card Setup
     void AddCard(int prefabIndex)
     {

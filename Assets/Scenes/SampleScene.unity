@@ -3053,6 +3053,7 @@ MonoBehaviour:
   swingPrefab: {fileID: 6494249040508361781, guid: 5f0c1eef983e0324594fe6b7201a43aa, type: 3}
   slidePrefab: {fileID: 4630699571442286960, guid: 5126a03b68209f84abf425e043ac1ae9, type: 3}
   moneyManager: {fileID: 1903676884}
+  cardManager: {fileID: 455298800}
   placeholderMaterial: {fileID: 2100000, guid: a68358d06e1ab854987eb98852a3a82c, type: 2}
   groundLayer:
     serializedVersion: 2

@@ -11,6 +11,7 @@ public class BuildingManager : MonoBehaviour
 
     [Header("References")]
     public MoneyManager moneyManager;
+    public CardManager cardManager;
 
     [Header("Placement Settings")]
     public Material placeholderMaterial;
@@ -167,6 +168,12 @@ public class BuildingManager : MonoBehaviour
         RestoreOriginalMaterials(currentBuilding);
         currentBuilding = null;
         DestroyRangePreview();
+
+        // Reset geselecteerde kaart
+        if (cardManager != null)
+        {
+            cardManager.ClearSelectedCard();
+        }
     }
 
 

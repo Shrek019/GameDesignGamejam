@@ -22,6 +22,13 @@ public class Swing : MonoBehaviour
         if (direction.sqrMagnitude > 0.01f)
         {
             Quaternion targetRot = Quaternion.LookRotation(direction, Vector3.up);
+
+            // behoud je lokale X-rotatie
+            Vector3 euler = targetRot.eulerAngles;
+            euler.x = -90f; // je swing prefab X rotatie
+            euler.z = 0f;   // optioneel, hou Z = 0
+            targetRot = Quaternion.Euler(euler);
+
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, 5f * Time.deltaTime);
         }
 
