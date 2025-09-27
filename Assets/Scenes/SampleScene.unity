@@ -390,7 +390,6 @@ MonoBehaviour:
   - +30 Playground HP
   - +10 Extra Money per zombie
   debuffs:
-  - Enemies deal 5% more damage
   - 1 Extra Day
 --- !u!114 &328269089
 MonoBehaviour:
@@ -631,6 +630,7 @@ MonoBehaviour:
   edgeSize: 10
   minBounds: {x: -6, y: -6}
   maxBounds: {x: 6, y: 6}
+  dayManager: {fileID: 328269088}
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -804,7 +804,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -1110,7 +1110,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -1301,7 +1301,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -1607,8 +1607,8 @@ CanvasGroup:
   m_GameObject: {fileID: 833153240}
   m_Enabled: 1
   m_Alpha: 1
-  m_Interactable: 1
-  m_BlocksRaycasts: 1
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
 --- !u!1 &1026804734
 GameObject:
@@ -1635,7 +1635,7 @@ Transform:
   m_GameObject: {fileID: 1026804734}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -4.94, y: 1.033334, z: 1.29}
+  m_LocalPosition: {x: -8.35, y: 1.033334, z: 1.29}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1831,7 +1831,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -1895,7 +1895,7 @@ Transform:
   m_GameObject: {fileID: 1373458497}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 6.32223, y: 1.033334, z: 0.45630246}
+  m_LocalPosition: {x: 10.77, y: 1.033334, z: 0.45630246}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2291,7 +2291,7 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 1
+  m_Interactable: 0
   m_TargetGraphic: {fileID: 0}
   m_FillRect: {fileID: 763892980}
   m_HandleRect: {fileID: 0}
@@ -2418,8 +2418,8 @@ CanvasGroup:
   m_GameObject: {fileID: 1695388246}
   m_Enabled: 1
   m_Alpha: 1
-  m_Interactable: 1
-  m_BlocksRaycasts: 1
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
 --- !u!1 &1805985931
 GameObject:
@@ -2535,8 +2535,8 @@ CanvasGroup:
   m_GameObject: {fileID: 1805985931}
   m_Enabled: 1
   m_Alpha: 1
-  m_Interactable: 1
-  m_BlocksRaycasts: 1
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
 --- !u!1 &1819943704
 GameObject:
@@ -2583,7 +2583,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 0, g: 0, b: 0, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -2654,8 +2654,8 @@ CanvasGroup:
   m_GameObject: {fileID: 1845666955}
   m_Enabled: 1
   m_Alpha: 0
-  m_Interactable: 1
-  m_BlocksRaycasts: 1
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
 --- !u!114 &1845666957
 MonoBehaviour:
@@ -2919,7 +2919,7 @@ Transform:
   m_GameObject: {fileID: 1993519631}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.02, y: 1.033334, z: -2.07}
+  m_LocalPosition: {x: 1.02, y: 1.033334, z: -8.09}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3031,7 +3031,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2, y: 1, z: 2}
+  m_LocalScale: {x: 5, y: 1, z: 5}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -3048,7 +3048,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b437f9a8ce4b9eb4581f6c7491f08165, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sandboxPrefab: {fileID: 8729681385790457611, guid: 249d4e0b89175a34bbdb6ecaa0ddf5c9, type: 3}
+  sandboxPrefab: {fileID: 2814314882258763198, guid: d89000a2b4668574eb51424c1d7ddaa8, type: 3}
   wallPrefab: {fileID: 6880888895744726272, guid: 8ec29eb80cedeee4d907d781928fd07f, type: 3}
   swingPrefab: {fileID: 6494249040508361781, guid: 5f0c1eef983e0324594fe6b7201a43aa, type: 3}
   slidePrefab: {fileID: 4630699571442286960, guid: 5126a03b68209f84abf425e043ac1ae9, type: 3}
@@ -3119,7 +3119,7 @@ Transform:
   m_GameObject: {fileID: 2016230385}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.26222998, y: 1.033334, z: 5.646519}
+  m_LocalPosition: {x: 0.26222998, y: 1.033334, z: 10.83}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

@@ -133,7 +133,7 @@ public class WaveSpawner : MonoBehaviour
             Transform spawn = spawnPoints[spawnIndex];
 
             // Random offset rondom spawn
-            float offsetRadius = 4f; // hoe ver ze maximaal kunnen afwijken
+            float offsetRadius = 2f; // hoe ver ze maximaal kunnen afwijken
             Vector2 randCircle = Random.insideUnitCircle * offsetRadius;
             Vector3 spawnPos = spawn.position + new Vector3(randCircle.x, 0f, randCircle.y);
 

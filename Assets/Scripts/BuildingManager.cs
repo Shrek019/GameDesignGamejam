@@ -46,8 +46,7 @@ public class BuildingManager : MonoBehaviour
             MoveBuildingWithMouse();
             UpdateRangePreview();
 
-            // Alleen plaatsen als de muis niet over UI is
-            if (Input.GetMouseButtonDown(0) && !UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
+            if (Input.GetMouseButtonDown(0))
             {
                 PlaceBuilding();
                 DestroyRangePreview();
@@ -114,6 +113,8 @@ public class BuildingManager : MonoBehaviour
     #region Placement
     void MoveBuildingWithMouse()
     {
+        if (currentBuilding == null) return;
+
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray, out RaycastHit hit, 100f, groundLayer))
         {
