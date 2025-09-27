@@ -42,13 +42,15 @@ public class BuildingManager : MonoBehaviour
             UpdateGrid(currentBuilding.transform.position);
             UpdateRangePreview();
 
-            if (Input.GetMouseButtonDown(0))
+            // Alleen plaatsen als de muis niet over UI is
+            if (Input.GetMouseButtonDown(0) && !UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
             {
                 PlaceBuilding();
                 HideGrid();
             }
         }
     }
+
 
     #region Building Selection
     void HandleBuildingSelection()
