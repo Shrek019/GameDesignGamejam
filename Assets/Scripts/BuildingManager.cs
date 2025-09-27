@@ -1,12 +1,13 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class BuildingManager : MonoBehaviour
 {
     [Header("Building Prefabs")]
-    public GameObject sandboxPrefab; // vertraagt enemies
-    public GameObject wallPrefab;    // blokkeert pad
-    public GameObject swingPrefab;   // knockback
-    public GameObject slidePrefab;   // schiet ballen
+    public GameObject sandboxPrefab;
+    public GameObject wallPrefab;
+    public GameObject swingPrefab;
+    public GameObject slidePrefab;
 
     [Header("Placement Settings")]
     public Material placeholderMaterial;
@@ -22,9 +23,8 @@ public class BuildingManager : MonoBehaviour
 
     private GameObject currentBuilding;
     private GameObject currentRangePreview;
-    private Material[] originalMaterials;
+    private Dictionary<GameObject, Material[]> originalMaterialsDict = new Dictionary<GameObject, Material[]>();
     private bool isPlacing = false;
-
     private GameObject gridParent;
     private GameObject selectedPrefab;
     private float currentRotation = 0f;
@@ -34,8 +34,7 @@ public class BuildingManager : MonoBehaviour
         HandleBuildingSelection();
         HandleRotation();
 
-        if (Input.GetKeyDown(KeyCode.E))
-            TogglePlacement();
+        if (Input.GetKeyDown(KeyCode.E)) TogglePlacement();
 
         if (isPlacing && currentBuilding != null)
         {
@@ -47,7 +46,6 @@ public class BuildingManager : MonoBehaviour
             {
                 PlaceBuilding();
                 HideGrid();
-                DestroyRangePreview();
             }
         }
     }
@@ -63,11 +61,9 @@ public class BuildingManager : MonoBehaviour
 
     void SelectPrefab(GameObject prefab)
     {
-        if (isPlacing && currentBuilding != null)
-            Destroy(currentBuilding);
+        if (isPlacing && currentBuilding != null) Destroy(currentBuilding);
 
         selectedPrefab = prefab;
-
         if (isPlacing)
         {
             currentBuilding = Instantiate(selectedPrefab);
@@ -108,8 +104,7 @@ public class BuildingManager : MonoBehaviour
 
         currentBuilding.transform.rotation = Quaternion.Euler(0, currentRotation, 0);
 
-        if (currentRangePreview != null)
-            currentRangePreview.transform.rotation = currentBuilding.transform.rotation;
+        if (currentRangePreview != null) UpdateRangePreviewPosition();
     }
     #endregion
 
@@ -125,10 +120,8 @@ public class BuildingManager : MonoBehaviour
         Vector3 tr = SnapToGrid(center) + new Vector3(halfSize, 0.01f, halfSize);
         Vector3 tl = SnapToGrid(center) + new Vector3(-halfSize, 0.01f, halfSize);
 
-        CreateLine(bl, br);
-        CreateLine(br, tr);
-        CreateLine(tr, tl);
-        CreateLine(tl, bl);
+        CreateLine(bl, br); CreateLine(br, tr);
+        CreateLine(tr, tl); CreateLine(tl, bl);
     }
 
     void CreateLine(Vector3 start, Vector3 end)
@@ -136,10 +129,8 @@ public class BuildingManager : MonoBehaviour
         GameObject line = Instantiate(linePrefab, gridParent.transform);
         LineRenderer lr = line.GetComponent<LineRenderer>();
         lr.positionCount = 2;
-        lr.SetPosition(0, start);
-        lr.SetPosition(1, end);
-        lr.startColor = gridColor;
-        lr.endColor = gridColor;
+        lr.SetPosition(0, start); lr.SetPosition(1, end);
+        lr.startColor = gridColor; lr.endColor = gridColor;
     }
 
     void UpdateGrid(Vector3 center)
@@ -153,10 +144,13 @@ public class BuildingManager : MonoBehaviour
         Vector3 tl = SnapToGrid(center) + new Vector3(-halfSize, 0.01f, halfSize);
 
         LineRenderer[] lines = gridParent.GetComponentsInChildren<LineRenderer>();
-        lines[0].SetPosition(0, bl); lines[0].SetPosition(1, br);
-        lines[1].SetPosition(0, br); lines[1].SetPosition(1, tr);
-        lines[2].SetPosition(0, tr); lines[2].SetPosition(1, tl);
-        lines[3].SetPosition(0, tl); lines[3].SetPosition(1, bl);
+        if (lines.Length >= 4)
+        {
+            lines[0].SetPosition(0, bl); lines[0].SetPosition(1, br);
+            lines[1].SetPosition(0, br); lines[1].SetPosition(1, tr);
+            lines[2].SetPosition(0, tr); lines[2].SetPosition(1, tl);
+            lines[3].SetPosition(0, tl); lines[3].SetPosition(1, bl);
+        }
     }
 
     void HideGrid()
@@ -178,17 +172,16 @@ public class BuildingManager : MonoBehaviour
             Vector3 snappedPosition = SnapToGrid(hit.point);
             float objectHeight = GetObjectHeight(currentBuilding);
             snappedPosition.y += objectHeight / 2f;
-
             currentBuilding.transform.position = snappedPosition;
 
-            if (currentRangePreview != null)
-                currentRangePreview.transform.position = currentBuilding.transform.position;
+            if (currentRangePreview != null) UpdateRangePreviewPosition();
         }
     }
 
     float GetObjectHeight(GameObject obj)
     {
         Renderer[] renderers = obj.GetComponentsInChildren<Renderer>();
+        if (renderers.Length == 0) return 1f;
         Bounds bounds = renderers[0].bounds;
         foreach (Renderer rend in renderers) bounds.Encapsulate(rend.bounds);
         return bounds.size.y;
@@ -196,10 +189,11 @@ public class BuildingManager : MonoBehaviour
 
     Vector3 SnapToGrid(Vector3 position)
     {
-        float x = Mathf.Round(position.x / gridSize) * gridSize;
-        float y = Mathf.Round(position.y / gridSize) * gridSize;
-        float z = Mathf.Round(position.z / gridSize) * gridSize;
-        return new Vector3(x, y, z);
+        return new Vector3(
+            Mathf.Round(position.x / gridSize) * gridSize,
+            Mathf.Round(position.y / gridSize) * gridSize,
+            Mathf.Round(position.z / gridSize) * gridSize
+        );
     }
 
     void PlaceBuilding()
@@ -214,11 +208,13 @@ public class BuildingManager : MonoBehaviour
     void SetPlaceholderMaterial(GameObject obj)
     {
         Renderer[] renderers = obj.GetComponentsInChildren<Renderer>();
-        originalMaterials = new Material[renderers.Length];
+        if (renderers.Length == 0) return;
 
+        Material[] mats = new Material[renderers.Length];
         for (int i = 0; i < renderers.Length; i++)
         {
-            originalMaterials[i] = renderers[i].material;
+            mats[i] = renderers[i].material;
+
             Material mat = new Material(placeholderMaterial);
             Color c = mat.color;
             c.a = 0.5f;
@@ -235,13 +231,20 @@ public class BuildingManager : MonoBehaviour
 
             renderers[i].material = mat;
         }
+        originalMaterialsDict[obj] = mats;
     }
 
     void RestoreOriginalMaterials(GameObject obj)
     {
-        Renderer[] renderers = obj.GetComponentsInChildren<Renderer>();
-        for (int i = 0; i < renderers.Length; i++)
-            renderers[i].material = originalMaterials[i];
+        if (obj == null) return;
+        if (originalMaterialsDict.TryGetValue(obj, out Material[] mats))
+        {
+            Renderer[] renderers = obj.GetComponentsInChildren<Renderer>();
+            for (int i = 0; i < Mathf.Min(renderers.Length, mats.Length); i++)
+                renderers[i].material = mats[i];
+
+            originalMaterialsDict.Remove(obj);
+        }
     }
     #endregion
 
@@ -249,46 +252,47 @@ public class BuildingManager : MonoBehaviour
     void ShowRangePreview()
     {
         DestroyRangePreview();
+        if (selectedPrefab == null || currentBuilding == null) return;
+
+        currentRangePreview = Instantiate(rangePreviewPrefab, currentBuilding.transform.position, Quaternion.identity, currentBuilding.transform);
 
         if (selectedPrefab == swingPrefab)
         {
-            currentRangePreview = Instantiate(rangePreviewPrefab, currentBuilding.transform.position, Quaternion.identity, currentBuilding.transform);
             float range = currentBuilding.GetComponent<Swing>().knockbackForceRange;
-            currentRangePreview.transform.localScale = new Vector3(range * 2, 0.1f, range * 2);
+            currentRangePreview.transform.localScale = new Vector3(1f, 0.1f, range * 2f);
+            UpdateRangePreviewPosition();
         }
         else if (selectedPrefab == slidePrefab)
         {
-            currentRangePreview = Instantiate(rangePreviewPrefab, currentBuilding.transform.position, Quaternion.identity, currentBuilding.transform);
-            Slide slideComp = currentBuilding.GetComponent<Slide>();
-
-            float length = slideComp.detectionRange;
-            float width = 1f;
-            float height = 0.1f;
-
-            // Schaal de plane
-            currentRangePreview.transform.localScale = new Vector3(width, height, length);
-
-            // Offset vanaf achterzijde (midden Slide + helft lengte)
-            Vector3 offset = currentBuilding.transform.forward * (length / 2f);
-            currentRangePreview.transform.position = currentBuilding.transform.position + offset;
-
-            // Rotatie: plat op X-as en meedraaiend met Slide
-            currentRangePreview.transform.rotation = currentBuilding.transform.rotation * Quaternion.Euler(90f, 0f, 0f);
+            float range = currentBuilding.GetComponent<Slide>().detectionRange;
+            currentRangePreview.transform.localScale = new Vector3(1f, 0.1f, range);
+            UpdateRangePreviewPosition();
         }
     }
-
-
-
-
 
     void UpdateRangePreview()
     {
-        if (currentRangePreview != null && currentBuilding != null)
+        if (currentRangePreview != null) UpdateRangePreviewPosition();
+    }
+
+    void UpdateRangePreviewPosition()
+    {
+        if (currentBuilding == null || currentRangePreview == null) return;
+
+        if (selectedPrefab == swingPrefab)
         {
             currentRangePreview.transform.position = currentBuilding.transform.position;
-            currentRangePreview.transform.rotation = currentBuilding.transform.rotation;
+            currentRangePreview.transform.rotation = Quaternion.Euler(0f, currentBuilding.transform.eulerAngles.y, 0f);
+        }
+        else if (selectedPrefab == slidePrefab)
+        {
+            Slide slideComp = currentBuilding.GetComponent<Slide>();
+            Vector3 offset = currentBuilding.transform.forward * (slideComp.detectionRange / 2f);
+            currentRangePreview.transform.position = currentBuilding.transform.position + offset;
+            currentRangePreview.transform.rotation = Quaternion.Euler(0f, currentBuilding.transform.eulerAngles.y, 0f);
         }
     }
+
 
     void DestroyRangePreview()
     {

@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+[RequireComponent(typeof(Rigidbody))]
 public class Zombie : MonoBehaviour
 {
     private Transform core;
@@ -19,11 +20,11 @@ public class Zombie : MonoBehaviour
 
     private bool attacking = false;
     private Coroutine attackRoutine;
-
     private float baseSpeed;
     private Coroutine slowRoutine;
-
     private GameObject currentBuildingTarget;
+
+    private Rigidbody rb;
 
     #region Initialization
     public void Init(Transform coreTransform, WaveSpawner spawner)
@@ -32,15 +33,21 @@ public class Zombie : MonoBehaviour
         waveSpawner = spawner;
         baseSpeed = speed;
         currentHealth = maxHealth;
+
+        rb = GetComponent<Rigidbody>();
+        rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+        rb.interpolation = RigidbodyInterpolation.Interpolate;
+        rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic; // voorkomt vastlopen bij snelle collisions
+        rb.isKinematic = false;
     }
     #endregion
 
-    #region Update
-    void Update()
+    #region Physics Movement
+    void FixedUpdate()
     {
         if (attacking) return;
 
-        // 1️⃣ Zoek alle buildings in de detect radius
+        // Zoek dichtstbijzijnde building
         Collider[] hits = Physics.OverlapSphere(transform.position, buildingDetectRange);
         GameObject closestBuilding = null;
         float closestBuildingDist = Mathf.Infinity;
@@ -58,26 +65,19 @@ public class Zombie : MonoBehaviour
             }
         }
 
-        // 2️⃣ Bereken afstand tot core
         float distToCore = Vector3.Distance(transform.position, core.position);
 
-        // 3️⃣ Kies target: building als het dichterbij is dan core
         if (closestBuilding != null && closestBuildingDist < distToCore)
             currentBuildingTarget = closestBuilding;
         else
-            currentBuildingTarget = null; // core target
+            currentBuildingTarget = null;
 
-        // 4️⃣ Kies huidige target positie
         Vector3 targetPos = (currentBuildingTarget != null) ? currentBuildingTarget.transform.position : core.position;
         float distance = Vector3.Distance(transform.position, targetPos);
 
-        // 5️⃣ Beweeg naar target als buiten attackRange
         if (distance > attackRange)
         {
-            transform.position = Vector3.MoveTowards(transform.position, targetPos, speed * Time.deltaTime);
-
-            Vector3 dir = (targetPos - transform.position).normalized;
-            if (dir != Vector3.zero) transform.forward = dir;
+            MoveTowards(targetPos);
         }
         else
         {
@@ -86,6 +86,24 @@ public class Zombie : MonoBehaviour
             else
                 StartAttackingCore();
         }
+    }
+
+    private void MoveTowards(Vector3 targetPos)
+    {
+        // Direction alleen op XZ plane
+        Vector3 dir = (targetPos - transform.position);
+        dir.y = 0f;
+        if (dir.sqrMagnitude < 0.01f) return; // niet bewegen bij minimale afstand
+
+        dir.Normalize();
+
+        // Rotation via Rigidbody
+        Quaternion targetRot = Quaternion.LookRotation(dir, Vector3.up);
+        rb.MoveRotation(targetRot);
+
+        // Beweging via Rigidbody
+        Vector3 newPos = rb.position + dir * speed * Time.fixedDeltaTime;
+        rb.MovePosition(newPos);
     }
     #endregion
 
