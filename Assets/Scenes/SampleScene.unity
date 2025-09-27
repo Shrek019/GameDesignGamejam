@@ -690,8 +690,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cardContainer: {fileID: 657390572}
   cardPrefabs:
-  - {fileID: 1850561702454017100, guid: 390bfd0f9004e144bad81da383ff8f13, type: 3}
   - {fileID: 1575753264523372899, guid: fa00dc8e045a7da44806aa0f602fb306, type: 3}
+  - {fileID: 1850561702454017100, guid: 390bfd0f9004e144bad81da383ff8f13, type: 3}
   - {fileID: 2500069454572718498, guid: bcc009eb7f137f54ba25718cc7fe6e39, type: 3}
   - {fileID: 3869731275241408696, guid: 477e63df13b8ac245b4d1e920268bbba, type: 3}
   hoverOffset: 110
