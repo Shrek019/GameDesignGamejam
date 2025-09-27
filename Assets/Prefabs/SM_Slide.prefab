@@ -82,6 +82,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 263293ae387f6de459e9f61f39aa8e48, type: 3}
       insertIndex: -1
       addedObject: {fileID: -1371351187088479684}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 263293ae387f6de459e9f61f39aa8e48, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2647594853977837214}
   m_SourcePrefab: {fileID: 100100000, guid: 263293ae387f6de459e9f61f39aa8e48, type: 3}
 --- !u!1 &4630699571442286960 stripped
 GameObject:
@@ -104,10 +107,9 @@ MonoBehaviour:
   projectileSpawn: {fileID: 5406672599330544586}
   shootInterval: 2
   projectileSpeed: 15
-  damage: 10
-  detectionRange: 4
+  damage: 15
+  range: 5
   rotationSpeed: 5
-  forwardThreshold: 0.7
 --- !u!114 &-1371351187088479684
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -121,6 +123,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   health: 20
+--- !u!65 &2647594853977837214
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4630699571442286960}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.029561548, y: 0.07201705, z: 0.08475455}
+  m_Center: {x: 0.000045282763, y: 0.010104952, z: -0.010061172}
 --- !u!4 &5406672599330544586 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 263293ae387f6de459e9f61f39aa8e48, type: 3}

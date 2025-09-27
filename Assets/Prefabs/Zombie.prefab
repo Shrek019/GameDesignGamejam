@@ -124,11 +124,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 55a194c9d72d24248ab9e5b9840114f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 5
+  maxHealth: 15
   speed: 2
   attackInterval: 1.5
   damage: 5
-  attackRange: 1
+  attackRange: 1.2
   buildingDetectRange: 5
 --- !u!54 &-9220438628601532367
 Rigidbody:

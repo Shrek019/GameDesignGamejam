@@ -120,5 +120,5 @@ MonoBehaviour:
   slowMultiplier: 0.5
   slowDuration: 2
   maxHealth: 25
-  damagePerEnemy: 1
+  damagePerEnemy: 3
   damageInterval: 1
