@@ -27,7 +27,7 @@ public class Slide : MonoBehaviour
             direction.y = 0f;
             if (direction != Vector3.zero)
             {
-                Quaternion lookRotation = Quaternion.LookRotation(direction);
+                Quaternion lookRotation = Quaternion.LookRotation(-direction);
                 transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, rotationSpeed * Time.deltaTime);
             }
 

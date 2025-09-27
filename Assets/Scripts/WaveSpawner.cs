@@ -125,7 +125,7 @@ public class WaveSpawner : MonoBehaviour
         waveActive = true;
         waveReady = false; // arrows zijn al actief, nu wave bezig
 
-        zombiesAlive = Random.Range(2 + (waveNumber - 1) * 2, 4 + (waveNumber - 1) * 2);
+        zombiesAlive = Random.Range(4 + (waveNumber - 1) * 2, 8 + (waveNumber - 1) * 2);
 
         for (int i = 0; i < zombiesAlive; i++)
         {

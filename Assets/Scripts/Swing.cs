@@ -21,7 +21,7 @@ public class Swing : MonoBehaviour
         direction.y = 0f;
         if (direction.sqrMagnitude > 0.01f)
         {
-            Quaternion targetRot = Quaternion.LookRotation(direction, Vector3.up);
+            Quaternion targetRot = Quaternion.LookRotation(direction, Vector3.right);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, 5f * Time.deltaTime);
         }
 
