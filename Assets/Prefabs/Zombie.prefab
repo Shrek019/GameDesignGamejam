@@ -130,7 +130,7 @@ MonoBehaviour:
   damage: 5
   attackRange: 1.2
   buildingDetectRange: 5
-  healthBarPrefab: {fileID: 1565131602691460347, guid: 24392bb3f5c3fc6418e768ec15477761, type: 3}
+  healthBarPrefab: {fileID: 1646078057013679988, guid: 01d1ec792fa0db94daf044d7fa2854ab, type: 3}
 --- !u!54 &-9220438628601532367
 Rigidbody:
   m_ObjectHideFlags: 0

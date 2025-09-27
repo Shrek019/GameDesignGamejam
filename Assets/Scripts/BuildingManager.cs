@@ -168,13 +168,20 @@ public class BuildingManager : MonoBehaviour
         }
 
         RestoreOriginalMaterials(currentBuilding);
+        buildingInstance = currentBuilding;
+
         currentBuilding = null;
         DestroyRangePreview();
 
-        // Health bar instantiëren
         if (healthBarPrefab != null)
         {
-            buildingHealthBar = Instantiate(healthBarPrefab, buildingInstance.transform.position + Vector3.up * 2f, Quaternion.identity, buildingInstance.transform);
+            buildingHealthBar = Instantiate(
+                healthBarPrefab,
+                buildingInstance.transform.position + Vector3.up * 2f,
+                Quaternion.identity,
+                buildingInstance.transform
+            );
+
             buildingHealthSlider = buildingHealthBar.GetComponentInChildren<Slider>();
             buildingHealthSlider.maxValue = health;
             buildingHealthSlider.value = health;
