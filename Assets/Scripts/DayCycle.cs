@@ -55,6 +55,12 @@ public class DayManagerTMP_Fade : MonoBehaviour
         // start de dagcyclus
         StartCoroutine(DayCycle());
     }
+
+    public bool IsUICardActive()
+    {
+        return currentGoodCard != null || currentBadCard != null;
+    }
+
     private void HideOtherUI()
     {
         foreach (var ui in otherUI)
@@ -309,6 +315,10 @@ public class DayManagerTMP_Fade : MonoBehaviour
 
         // Nu mag de dagcyclus verder
         cardsChosen = true;
+
+        CameraController camCtrl = FindObjectOfType<CameraController>();
+        if (camCtrl != null)
+            camCtrl.ResetToStartPosition();
 
         currentGoodCard = null;
         currentBadCard = null;

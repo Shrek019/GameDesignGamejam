@@ -10,16 +10,25 @@ public class CameraController : MonoBehaviour
     public Vector2 minBounds;          // minimum X/Z voor beweging
     public Vector2 maxBounds;          // maximum X/Z voor beweging
 
+    public DayManagerTMP_Fade dayManager;
+
+    private Vector3 startPosition;
     private Camera cam;
 
     void Start()
     {
         cam = Camera.main;
-        // Zorg dat dit script op de camera staat en camera naar beneden kijkt (top-down)
+        startPosition = transform.position;
     }
 
     void Update()
     {
+        if (dayManager != null && dayManager.IsUICardActive())
+        {
+            ResetToStartPosition();
+            return; // geen beweging
+        }
+
         Vector3 pos = transform.position;
 
         // ---- Keyboard Input (Arrow keys) ----
@@ -41,5 +50,9 @@ public class CameraController : MonoBehaviour
         pos.z = Mathf.Clamp(pos.z, minBounds.y, maxBounds.y);
 
         transform.position = pos;
+    }
+    public void ResetToStartPosition()
+    {
+        transform.position = startPosition;
     }
 }

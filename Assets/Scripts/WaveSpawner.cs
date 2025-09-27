@@ -125,14 +125,19 @@ public class WaveSpawner : MonoBehaviour
         waveActive = true;
         waveReady = false; // arrows zijn al actief, nu wave bezig
 
-        zombiesAlive = Random.Range(4 + (waveNumber - 1) * 2, 8 + (waveNumber - 1) * 2);
+        zombiesAlive = Random.Range(2 + (waveNumber - 1) * 2, 4 + (waveNumber - 1) * 2);
 
         for (int i = 0; i < zombiesAlive; i++)
         {
             int spawnIndex = activeSpawnIndices[Random.Range(0, activeSpawnIndices.Count)];
             Transform spawn = spawnPoints[spawnIndex];
 
-            GameObject z = Instantiate(zombiePrefab, spawn.position, Quaternion.identity);
+            // Random offset rondom spawn
+            float offsetRadius = 4f; // hoe ver ze maximaal kunnen afwijken
+            Vector2 randCircle = Random.insideUnitCircle * offsetRadius;
+            Vector3 spawnPos = spawn.position + new Vector3(randCircle.x, 0f, randCircle.y);
+
+            GameObject z = Instantiate(zombiePrefab, spawnPos, Quaternion.identity);
             z.GetComponent<Zombie>().Init(core, this);
 
             yield return new WaitForSeconds(0.5f);
