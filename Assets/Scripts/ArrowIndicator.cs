@@ -3,43 +3,37 @@ using UnityEngine;
 public class ArrowIndicator : MonoBehaviour
 {
     [Header("Animation Settings")]
-    public float animationDuration = 0.5f;
-    private Vector3 targetScale = Vector3.one;
-    private Vector3 initialScale = Vector3.zero;
+    public float minScale = 0.5f;
+    public float maxScale = 1f;
+    public float pulseDuration = 1f;
+
+    private bool isActive = false;
     private float timer = 0f;
-    private bool isShowing = false;
-
-    private void Start()
-    {
-        transform.localScale = Vector3.zero; // start onzichtbaar
-    }
-
-    public void ShowArrow()
-    {
-        isShowing = true;
-        timer = 0f;
-    }
-
-    public void HideArrow()
-    {
-        isShowing = false;
-        timer = 0f;
-    }
 
     private void Update()
     {
-        if (timer < animationDuration)
-        {
-            timer += Time.deltaTime;
-            float t = Mathf.Clamp01(timer / animationDuration);
+        if (!isActive) return;
 
-            // Ease-in-out (smoothstep)
-            t = t * t * (3f - 2f * t);
+        timer += Time.deltaTime;
+        float t = Mathf.PingPong(timer / pulseDuration, 1f); // loopen
+        t = t * t * (3f - 2f * t); // ease-in-out
 
-            if (isShowing)
-                transform.localScale = Vector3.Lerp(Vector3.zero, targetScale, t);
-            else
-                transform.localScale = Vector3.Lerp(targetScale, Vector3.zero, t);
-        }
+        float scale = Mathf.Lerp(minScale, maxScale, t);
+        transform.localScale = new Vector3(scale, scale, scale);
+    }
+
+    public void ActivateArrow()
+    {
+        isActive = true;
+        timer = 0f;
+        transform.localScale = Vector3.one * minScale;
+        gameObject.SetActive(true);
+    }
+
+    public void DeactivateArrow()
+    {
+        isActive = false;
+        transform.localScale = Vector3.one;
+        gameObject.SetActive(false);
     }
 }
